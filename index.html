@@ -202,7 +202,7 @@
   <div class="nav"><button id="navHome" class="active" onclick="showScreen('homeScreen')">⌂<br>Home</button><button id="navGame" onclick="showScreen('gameScreen')">✈️<br>Game</button><button id="navProfile" onclick="showScreen('profileScreen')">👤<br>Profile</button></div>
 </div>
 
-<!-- Firebase SDK (Modular CDN) -->
+<!-- Firebase SDK (Modular CDN) & Real-time Numbers Listener -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -230,6 +230,15 @@
   window.fbUpdate = update;
   window.fbPush = push;
   window.fbOnValue = onValue;
+
+  // ফায়ারবেস থেকে লাইভ পেমেন্ট নম্বর সিঙ্ক করার ব্যবস্থা
+  window.adminLiveNumbers = { bKash: '01XXXXXXXXX', Nagad: '01XXXXXXXXX', Rocket: '01XXXXXXXXX' };
+  onValue(ref(db, 'settings/numbers'), (snapshot) => {
+      if (snapshot.exists()) {
+          window.adminLiveNumbers = snapshot.val();
+          updateDepositNumberDisplay();
+      }
+  });
 </script>
 
 <script>
@@ -295,7 +304,6 @@ function handleRegister(){
     }
 
     showLoading("একাউন্ট তৈরি হচ্ছে...", () => {
-        // ব্যালেন্স একদম জিরো (0) করে দেওয়া হলো
         usersDb[phone] = { name, password, balance: 0, lastActive: Date.now() };
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
         
@@ -418,8 +426,8 @@ function shareToSocial(platform){
 }
 
 function updateDepositNumberDisplay(){
-    let freshDb = JSON.parse(localStorage.getItem('aviator_full_db')) || globalDb;
-    let targetNum = freshDb.numbers ? freshDb.numbers[demoDepositMethod] : '01XXXXXXXXX';
+    let numbersObj = window.adminLiveNumbers || globalDb.numbers;
+    let targetNum = numbersObj ? numbersObj[demoDepositMethod] : '01XXXXXXXXX';
     const numEl = document.getElementById('paymentNumber');
     if(numEl) numEl.textContent = targetNum || '01XXXXXXXXX';
 }
