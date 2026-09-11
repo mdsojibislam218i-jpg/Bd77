@@ -23,7 +23,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 .screen.active{display:block}
 </style>
 
-<!-- Firebase SDKs (সঠিক পাথ দিয়ে আপডেট করা হয়েছে) -->
+<!-- Firebase SDKs (Modular CDN) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -44,7 +44,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 
   let adminPassword = '44admin121';
 
-  // পাসওয়ার্ড লোড করা ফায়ারবেস থেকে
   async function initAdmin() {
       const dbRef = ref(db);
       try {
@@ -102,7 +101,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
   async function fetchRequests() {
       const dbRef = ref(db);
       
-      // ডিপোজিট রিকুয়েস্ট লোড[cite: 2]
+      // ডিপোজিট রিকুয়েস্ট লোড[span_0](start_span)[span_0](end_span)
       const depSnap = await get(child(dbRef, 'requests'));
       const depTable = document.getElementById('adminDepositTableBody');
       if(depSnap.exists()){
@@ -130,7 +129,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           depTable.innerHTML = `<tr><td colspan="5" style="text-align:center">কোনো ডিপোজিট রিকুয়েস্ট নেই</td></tr>`;
       }
 
-      // উইথড্র রিকুয়েস্ট লোড[cite: 2]
+      // উইথড্র রিকুয়েস্ট লোড[span_1](start_span)[span_1](end_span)
       const wSnap = await get(child(dbRef, 'withdrawRequests'));
       const withdrawTable = document.getElementById('adminWithdrawTableBody');
       if(wSnap.exists()){
@@ -200,14 +199,31 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       if(action === 'Accept'){
           await update(reqRef, { status: 'Approved' });
           
-          const userRef = ref(db, 'users/' + req.userPhone);
-          const userSnap = await get(userRef);
-          if(userSnap.exists()){
-              let userData = userSnap.val();
-              let newBal = (userData.balance || 0) + Number(req.amount);
-              await update(userRef, { balance: newBal });
+          // লোকাল স্টোরেজ বা ফায়ারবেস যেখানেই ইউজার ডাটা থাকুক সিঙ্ক করার জন্য
+          let usersDb = JSON.parse(localStorage.getItem('aviator_users_db')) || {};
+          let userPhone = req.userPhone;
+
+          if(usersDb[userPhone]){
+              usersDb[userPhone].balance = (usersDb[userPhone].balance || 0) + Number(req.amount);
+              usersDb[userPhone].totalDeposit = (usersDb[userPhone].totalDeposit || 0) + Number(req.baseAmount || req.amount);
+
+              // রেফার বোনাস লজিক (২০০০ টাকা ডিপোজিট শর্ত পূরণ সাপেক্ষে)
+              if(usersDb[userPhone].referredBy && !usersDb[userPhone].referBonusGiven){
+                  if(usersDb[userPhone].totalDeposit >= 2000){
+                      usersDb[userPhone].referBonusGiven = true;
+                      let referrer = usersDb[usersDb[userPhone].referredBy];
+                      if(referrer){
+                          if(!referrer.referStats) referrer.referStats = { count: 0, bonusEarned: 0 };
+                          referrer.referStats.count += 1;
+                          referrer.referStats.bonusEarned += 300;
+                          referrer.balance += 300;
+                      }
+                  }
+              }
+              localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
           }
-          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে!');
+
+          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে এবং ব্যালেন্স আপডেট হয়েছে!');
       } else {
           await update(reqRef, { status: 'Rejected' });
           alert('ডিপোজিট রিকুয়েস্ট Reject করা হয়েছে!');
@@ -222,20 +238,20 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       let wReq = snap.val();
       if(wReq.status !== 'Pending') return;
 
-      const userRef = ref(db, 'users/' + wReq.userPhone);
-
       if(action === 'Accept'){
           await update(wRef, { status: 'Approved' });
           alert('উইথড্র রিকুয়েস্ট সফলভাবে Accept করা হয়েছে!');
       } else {
           await update(wRef, { status: 'Rejected' });
           
-          const userSnap = await get(userRef);
-          if(userSnap.exists()){
-              let userData = userSnap.val();
-              let newBal = (userData.balance || 0) + Number(wReq.amount);
-              await update(userRef, { balance: newBal });
+          let usersDb = JSON.parse(localStorage.getItem('aviator_users_db')) || {};
+          let userPhone = wReq.userPhone;
+
+          if(usersDb[userPhone]){
+              usersDb[userPhone].balance = (usersDb[userPhone].balance || 0) + Number(wReq.amount);
+              localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
           }
+
           alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা ইউজারের অ্যাকাউন্টে ফেরত দেওয়া হয়েছে!');
       }
       fetchRequests();
@@ -247,7 +263,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 <body>
 
 <div class="app">
-  <!-- Login Screen for Admin -->
   <div id="adminLoginScreen" class="screen active">
     <div style="text-align:center;margin:40px 0 20px">
       <div style="font-size:36px">🛡️</div>
@@ -261,7 +276,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
     </div>
   </div>
 
-  <!-- Dashboard Screen for Admin -->
   <div id="adminDashboardScreen" class="screen">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
       <div style="font-size:20px;font-weight:900;color:#ffcf72">🛡️ Admin Dashboard</div>
