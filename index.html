@@ -104,12 +104,33 @@
       </div>
     </div>
     <div class="game"><div class="sky" id="sky"><div class="status"><span id="round">ROUND #001</span><span id="state">FLYING</span></div><div id="countdown" style="display:none;position:absolute;inset:0;z-index:10;align-items:center;justify-content:center;background:rgba(5,7,10,.72);font-size:34px;font-weight:900;text-align:center">Next Round<br><span id="countNum" style="font-size:64px">10</span></div><div class="grid"></div><div class="line"></div><div class="plane" id="plane">✈️</div><div class="mult" id="mult">1.00×</div></div><div class="history" id="history"></div></div>
-    <div class="panel"><div class="box"><div style="font-weight:800;margin-bottom:10px">দুইটি Bet Slot</div><div class="row"><div class="field"><label>Bet 1 — Amount (Max ৳20,000)</label><input id="bet1" type="number" min="10" max="20000" value="100"></div><div class="field"><label>Bet 1 — Auto Cash Out</label><input id="auto1" type="number" min="1.01" max="2000" step="0.01" value="2.00"></div></div><button class="bet" id="betBtn1" onclick="placeBet(1)" style="margin-top:8px">BET 1</button><button class="cash" id="cashBtn1" onclick="cashOut(1)" disabled>CASH OUT 1</button><div style="height:12px"></div><div class="row"><div class="field"><label>Bet 2 — Amount (Max ৳20,000)</label><input id="bet2" type="number" min="10" max="20000" value="200"></div><div class="field"><label>Bet 2 — Auto Cash Out</label><input id="auto2" type="number" min="1.01" max="2000" step="0.01" value="3.00"></div></div><button class="bet" id="betBtn2" onclick="placeBet(2)" style="margin-top:8px">BET 2</button><button class="cash" id="cashBtn2" onclick="cashOut(2)" disabled>CASH OUT 2</button></div></div>
+    <div class="panel">
+      <div class="box">
+        <div style="font-weight:800;margin-bottom:10px">দুইটি Bet Slot</div>
+        <div class="row"><div class="field"><label>Bet 1 — Amount (Max ৳20,000)</label><input id="bet1" type="number" min="10" max="20000" value="100"></div><div class="field"><label>Bet 1 — Auto Cash Out</label><input id="auto1" type="number" min="1.01" max="2000" step="0.01" value="2.00"></div></div><button class="bet" id="betBtn1" onclick="placeBet(1)" style="margin-top:8px">BET 1</button><button class="cash" id="cashBtn1" onclick="cashOut(1)" disabled>CASH OUT 1</button><div style="height:12px"></div><div class="row"><div class="field"><label>Bet 2 — Amount (Max ৳20,000)</label><input id="bet2" type="number" min="10" max="20000" value="200"></div><div class="field"><label>Bet 2 — Auto Cash Out</label><input id="auto2" type="number" min="1.01" max="2000" step="0.01" value="3.00"></div></div><button class="bet" id="betBtn2" onclick="placeBet(2)" style="margin-top:8px">BET 2</button><button class="cash" id="cashBtn2" onclick="cashOut(2)" disabled>CASH OUT 2</button>
+      </div>
+      <!-- গেম স্ক্রিনে টার্নওভার স্ট্যাটাস বক্স -->
+      <div class="box" style="background:#11161e;border:1px solid #2a303b;">
+        <div style="font-size:13px;font-weight:900;color:#ffcf72;margin-bottom:6px">📊 টার্নওভার স্ট্যাটাস (Turnover)</div>
+        <div class="bonus-row"><span>প্রয়োজনীয় বাজি (Target):</span><strong id="turnoverTarget">৳0</strong></div>
+        <div class="bonus-row"><span>খেলা হয়েছে (Completed):</span><strong id="turnoverCurrent">৳0</strong></div>
+        <div class="modal-note" style="margin-top:6px">শর্ত পূরণ না হলে উইথড্র করতে পারবেন না।</div>
+      </div>
+    </div>
   </div>
 
   <div id="profileScreen" class="screen">
     <div class="header"><div class="logo">👤 Profile</div><div class="balance">💰 ৳ <span id="profileBalance">0</span></div></div>
     <div class="card"><div class="stat"><span>Mobile Number</span><strong id="profilePhone">01XXXXXXXXX</strong></div><div class="stat"><span>Balance</span><strong>৳ <span id="profileBalance2">0</span></strong></div></div>
+    
+    <!-- প্রোফাইল পেজে টার্নওভার স্ট্যাটাস দেখার বক্স -->
+    <div class="card" style="background:#11161e;border:1px solid #2a303b;">
+      <div style="font-size:14px;font-weight:900;color:#ffcf72;margin-bottom:8px">📊 টার্নওভার স্ট্যাটাস (Turnover)</div>
+      <div class="bonus-row"><span>প্রয়োজনীয় বাজি (Target):</span><strong id="profileTurnoverTarget">৳0</strong></div>
+      <div class="bonus-row"><span>খেলা হয়েছে (Completed):</span><strong id="profileTurnoverCurrent">৳0</strong></div>
+      <div class="modal-note" style="margin-top:8px">শর্ত পূরণ হলে আপনি সহজেই টাকা উইথড্র করতে পারবেন।</div>
+    </div>
+
     <div class="card"><div class="nickname-box"><div class="nickname-head"><div><div class="nickname-title">✨ Nickname</div><div class="nickname-value" id="profileNickname">Not set</div></div><button class="nickname-edit" type="button" onclick="toggleNicknameForm()">✏️ Edit</button></div><div id="nicknameForm" class="nickname-form"><label>Your Nickname</label><input id="nicknameInput" type="text" maxlength="30" placeholder="Enter your nickname"><div class="row" style="margin-top:9px"><button class="small" style="flex:1" type="button" onclick="toggleNicknameForm()">Cancel</button><button class="cash" style="flex:1;margin:0" type="button" onclick="saveNickname()">Save</button></div><div id="nicknameMsg" class="nickname-msg"></div></div></div></div>
     <div class="profile-action-grid"><button class="profile-action-btn deposit-btn" type="button" onclick="openProfileModal('depositModal')">📥 Deposit<span>Deposit + 20% Bonus</span></button><button class="profile-action-btn money-btn" type="button" onclick="openProfileModal('moneyModal')">💰 Money<span>Balance + Withdraw</span></button></div>
     <div class="card"><div style="font-size:18px;font-weight:900;margin-bottom:10px">⚙️ Settings</div><button class="small" style="width:100%" onclick="openPasswordModal()">🔐 Transaction Password</button><div id="passwordStatus" style="font-size:12px;color:#9da7b6;margin-top:9px">Password not set</div></div>
@@ -301,7 +322,6 @@ function handleRegister(){
     let assignedReferCode = 'AVIATOR-' + Math.floor(1000 + Math.random() * 9000);
     let referredBy = null;
 
-    // যদি রেফার কোড দিয়ে থাকে, তবে ভ্যালিড কি না চেক করা
     if(inputReferCode){
         let foundReferrerPhone = null;
         for(let p in usersDb){
@@ -313,7 +333,7 @@ function handleRegister(){
         if(foundReferrerPhone){
             referredBy = foundReferrerPhone;
         } else {
-            msg.textContent = 'সঠিক রেফার কোড পাওয়া যায়নি (চালিয়ে যেতে পারেন বা কোড ফাঁকা রাখতে পারেন)।';
+            msg.textContent = 'সঠিক রেফার কোড পাওয়া যায়নি।';
             return;
         }
     }
@@ -323,6 +343,8 @@ function handleRegister(){
             name,
             password,
             balance: 0,
+            turnoverTarget: 0,
+            turnoverCurrent: 0,
             myReferCode: assignedReferCode,
             referredBy: referredBy,
             totalDeposit: 0,
@@ -390,6 +412,9 @@ function loadUserData(){
     if(currentUserPhone && usersDb[currentUserPhone]){
         let user = usersDb[currentUserPhone];
         balance = user.balance !== undefined ? user.balance : 0;
+        if(user.turnoverTarget === undefined) user.turnoverTarget = 0;
+        if(user.turnoverCurrent === undefined) user.turnoverCurrent = 0;
+
         if(!user.myReferCode){
             user.myReferCode = 'AVIATOR-' + Math.floor(1000 + Math.random() * 9000);
             localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
@@ -426,6 +451,17 @@ function syncAppBalance(){
         if(refCountEl) refCountEl.textContent = (user.referStats ? user.referStats.count : 0) + ' জন';
         const refBonusEl = document.getElementById('totalReferBonus');
         if(refBonusEl) refBonusEl.textContent = '৳' + fmt(user.referStats ? user.referStats.bonusEarned : 0);
+
+        // গেম স্ক্রিন এবং প্রোফাইল স্ক্রিন উভয়ের টার্নওভার ডেটা আপডেট
+        const tTarget = document.getElementById('turnoverTarget');
+        const tCurrent = document.getElementById('turnoverCurrent');
+        if(tTarget) tTarget.textContent = '৳' + fmt(user.turnoverTarget || 0);
+        if(tCurrent) tCurrent.textContent = '৳' + fmt(user.turnoverCurrent || 0);
+
+        const pTarget = document.getElementById('profileTurnoverTarget');
+        const pCurrent = document.getElementById('profileTurnoverCurrent');
+        if(pTarget) pTarget.textContent = '৳' + fmt(user.turnoverTarget || 0);
+        if(pCurrent) pCurrent.textContent = '৳' + fmt(user.turnoverCurrent || 0);
     }
 }
 
@@ -465,7 +501,28 @@ function updateDepositNumberDisplay(){
 }
 
 function randomCrash(){const r=Math.random();if(r<.62)return +(1.05+Math.random()*1.95).toFixed(2);if(r<.90)return +(3+Math.random()*7).toFixed(2);if(r<.975)return +(10+Math.random()*40).toFixed(2);return +(50+Math.random()*1950).toFixed(2)}
-function placeBet(slot){if(crashed||bets[slot].active)return;const amount=Number(document.getElementById('bet'+slot).value);if(!amount||amount<10||amount>20000){alert('প্রতি Bet-এর সীমা ৳10–৳20,000।');return}if(amount>balance){alert('পর্যাপ্ত ব্যালেন্স নেই।');return}balance-=amount;bets[slot]={active:true,amount};updateBalance();document.getElementById('betBtn'+slot).textContent='BET ACTIVE';document.getElementById('cashBtn'+slot).disabled=false}
+
+function placeBet(slot){
+    if(crashed||bets[slot].active)return;
+    const amount=Number(document.getElementById('bet'+slot).value);
+    if(!amount||amount<10||amount>20000){alert('প্রতি Bet-এর সীমা ৳10–৳20,000।');return}
+    if(amount>balance){alert('পর্যাপ্ত ব্যালেন্স নেই।');return}
+    
+    balance-=amount;
+    bets[slot]={active:true,amount};
+    
+    if(currentUserPhone && usersDb[currentUserPhone]){
+        let user = usersDb[currentUserPhone];
+        if(!user.turnoverCurrent) user.turnoverCurrent = 0;
+        user.turnoverCurrent += amount;
+        localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+    }
+
+    updateBalance();
+    document.getElementById('betBtn'+slot).textContent='BET ACTIVE';
+    document.getElementById('cashBtn'+slot).disabled=false;
+}
+
 function cashOut(slot){if(!bets[slot].active||crashed)return;balance+=bets[slot].amount*multiplier;bets[slot]={active:false,amount:0};updateBalance();document.getElementById('cashBtn'+slot).disabled=true;document.getElementById('betBtn'+slot).textContent='BET SETTLED'}
 function render(t){if(crashed)return;const elapsed=(t-start)/1000;multiplier=Math.min(2000,Math.exp(elapsed*.34));if(multiplier>=crashAt){multiplier=crashAt;doCrash();return}multEl.textContent=multiplier.toFixed(2)+'×';plane.style.left=Math.min(82,12+elapsed*5.5)+'%';plane.style.bottom=Math.min(78,13+elapsed*2.5)+'%';[1,2].forEach(slot=>{if(bets[slot].active){const a=Number(document.getElementById('auto'+slot).value);if(a>=1.01&&multiplier>=a)cashOut(slot)}});requestAnimationFrame(render)}
 function doCrash(){crashed=true;stateEl.textContent='CRASHED';sky.classList.add('crashed');multEl.textContent=multiplier.toFixed(2)+'×';plane.style.transition='left .25s ease,bottom 1.15s cubic-bezier(.55,.05,.7,.2)';plane.style.bottom='-15%';plane.style.transform='rotate(35deg)';history.unshift(multiplier);history=history.slice(0,8);document.getElementById('history').innerHTML=history.map(x=>`<div class="pill ${x>=10?'hot':''}">${x.toFixed(2)}×</div>`).join('');syncAppBalance();[1,2].forEach(slot=>{bets[slot]={active:false,amount:0};document.getElementById('cashBtn'+slot).disabled=true;document.getElementById('betBtn'+slot).textContent='NEXT ROUND'});setTimeout(startCountdown,1500)}
@@ -490,6 +547,7 @@ function selectMethod(method){demoDepositMethod=method;document.getElementById('
 function updateDepositPreview(){const amount=Math.max(0,Number(document.getElementById('depositAmount').value)||0),bonus=Math.round(amount*.20);document.getElementById('depositPreview').textContent='৳'+fmt(amount);document.getElementById('depositBonusPreview').textContent='৳'+fmt(bonus);document.getElementById('depositTotalPreview').textContent='৳'+fmt(amount+bonus)}
 function clearQuickDepositActive(){document.querySelectorAll('#depositModal .quick-amount').forEach(b=>b.classList.remove('active'))}
 function setDepositAmount(amount){document.getElementById('depositAmount').value=amount;updateDepositPreview();document.querySelectorAll('#depositModal .quick-amount').forEach(b=>b.classList.toggle('active',b.textContent.replace(/[^0-9]/g,'')===String(amount)))}
+
 function submitDemoDeposit(){
     const amount=Number(document.getElementById('depositAmount').value);
     const sender=document.getElementById('senderNum').value.trim();
@@ -500,12 +558,13 @@ function submitDemoDeposit(){
     if(!sender){msg.textContent='আপনার প্রেরক নম্বর দিন।';return}
     if(!tx){msg.textContent='Transaction ID দিন।';return}
     
-    // ডেমো সিস্টেমে ইউজার ডিপোজিট সফল ধরে রেফারেল চেক ও আপডেট করা
     let currentUser = usersDb[currentUserPhone];
     if(currentUser){
         currentUser.totalDeposit = (currentUser.totalDeposit || 0) + amount;
         
-        // যদি এই ইউজারের কোনো referrer থাকে এবং সে এই প্রথমবার মোট ৳২০০০ বা তার বেশি ডিপোজিট পূর্ণ করে
+        const bonus=Math.round(amount*.20),total=amount+bonus;
+        currentUser.turnoverTarget = (currentUser.turnoverTarget || 0) + total;
+
         if(currentUser.referredBy && !currentUser.referBonusGiven){
             if(currentUser.totalDeposit >= 2000){
                 currentUser.referBonusGiven = true;
@@ -514,7 +573,7 @@ function submitDemoDeposit(){
                     if(!referrer.referStats) referrer.referStats = { count: 0, bonusEarned: 0 };
                     referrer.referStats.count += 1;
                     referrer.referStats.bonusEarned += 300;
-                    referrer.balance += 300; // রেফারকারীকে ৩০০০/৩০০ টাকা বোনাস যুক্ত করা
+                    referrer.balance += 300;
                 }
             }
         }
@@ -573,6 +632,16 @@ function submitDemoWithdraw(){
     if(!transactionPassword){msg.textContent='প্রথমে Settings থেকে Transaction Password সেট করুন।';return}
     if(password!==transactionPassword){msg.textContent='Transaction Password সঠিক নয়।';return}
     if(amount>balance){msg.textContent='পর্যাপ্ত balance নেই।';return}
+
+    let currentUser = usersDb[currentUserPhone];
+    if(currentUser){
+        let target = currentUser.turnoverTarget || 0;
+        let current = currentUser.turnoverCurrent || 0;
+        if(current < target){
+            msg.textContent = `টার্নওভার শর্ত পূর্ণ হয়নি! আপনাকে আরও ৳${fmt(target - current)} টাকার বাজি খেলতে হবে।`;
+            return;
+        }
+    }
     
     let freshDb = JSON.parse(localStorage.getItem('aviator_full_db')) || globalDb;
     balance-=amount;
