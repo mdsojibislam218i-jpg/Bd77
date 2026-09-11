@@ -23,10 +23,10 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 .screen.active{display:block}
 </style>
 
-<!-- Firebase SDKs -->
+<!-- Firebase SDKs (সঠিক পাথ দিয়ে আপডেট করা হয়েছে) -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/com.google.firebase/firebase-app.js";
-  import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/com.google.firebase/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDAJGU2sNTdx0sL7pqAaZX7sKRM0LrgYwU",
@@ -102,7 +102,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
   async function fetchRequests() {
       const dbRef = ref(db);
       
-      // ডিপোজিট রিকুয়েস্ট লোড
+      // ডিপোজিট রিকুয়েস্ট লোড[cite: 2]
       const depSnap = await get(child(dbRef, 'requests'));
       const depTable = document.getElementById('adminDepositTableBody');
       if(depSnap.exists()){
@@ -130,7 +130,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           depTable.innerHTML = `<tr><td colspan="5" style="text-align:center">কোনো ডিপোজিট রিকুয়েস্ট নেই</td></tr>`;
       }
 
-      // উইথড্র রিকুয়েস্ট লোড
+      // উইথড্র রিকুয়েস্ট লোড[cite: 2]
       const wSnap = await get(child(dbRef, 'withdrawRequests'));
       const withdrawTable = document.getElementById('adminWithdrawTableBody');
       if(wSnap.exists()){
@@ -200,7 +200,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       if(action === 'Accept'){
           await update(reqRef, { status: 'Approved' });
           
-          // ইউজারের ব্যালেন্স আপডেট
           const userRef = ref(db, 'users/' + req.userPhone);
           const userSnap = await get(userRef);
           if(userSnap.exists()){
@@ -231,7 +230,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       } else {
           await update(wRef, { status: 'Rejected' });
           
-          // রিজেক্ট হলে টাকা ইউজারের অ্যাকাউন্টে ফেরত দেওয়া
           const userSnap = await get(userRef);
           if(userSnap.exists()){
               let userData = userSnap.val();
