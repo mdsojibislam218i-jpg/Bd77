@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Panel - Aviator</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#080a0f;color:#fff;font-family:Arial,sans-serif}
+.app{width:100%;max-width:520px;margin:auto;min-height:100vh;background:#11151d;box-shadow:0 0 40px rgba(0,0,0,.45);padding:15px}
+.card{background:#191f29;border:1px solid #2a303b;border-radius:14px;padding:16px;margin-bottom:12px}
+label{display:block;color:#9da7b6;font-size:12px;margin-bottom:6px}
+input{width:100%;background:#0e1218;border:1px solid #303846;color:#fff;padding:12px;border-radius:8px;font-size:16px;outline:none;margin-bottom:12px}
+button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cursor:pointer;width:100%}
+.cash{background:#20b56b;color:#fff}
+.admin-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.admin-table th,.admin-table td{border:1px solid #2a303b;padding:8px;text-align:left}
+.admin-table th{background:#161c27;color:#9da7b6}
+.admin-btn{padding:5px 8px;border-radius:6px;font-size:11px;font-weight:bold;cursor:pointer;border:0;margin-right:3px}
+.approve-btn{background:#20b56b;color:#fff}
+.reject-btn{background:#ff4961;color:#fff}
+.modal-note{font-size:11px;color:#7f8999;line-height:1.5}
+.screen{display:none}
+.screen.active{display:block}
+</style>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/com.google.firebase/firebase-app.js";
+  import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/com.google.firebase/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDAJGU2sNTdx0sL7pqAaZX7sKRM0LrgYwU",
+    authDomain: "uk77-56f6d.firebaseapp.com",
+    databaseURL: "https://uk77-56f6d-default-rtdb.firebaseio.com",
+    projectId: "uk77-56f6d",
+    storageBucket: "uk77-56f6d.firebasestorage.app",
+    messagingSenderId: "1062783431056",
+    appId: "1:1062783431056:web:601df05c01a12e18998315",
+    measurementId: "G-TV874HDF4E"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let adminPassword = '44admin121';
+
+  // পাসওয়ার্ড লোড করা ফায়ারবেস থেকে
+  async function initAdmin() {
+      const dbRef = ref(db);
+      try {
+          const snapshot = await get(child(dbRef, 'admin/password'));
+          if (snapshot.exists()) {
+              adminPassword = snapshot.val();
+          } else {
+              await set(ref(db, 'admin/password'), '44admin121');
+          }
+      } catch (error) {
+          console.error(error);
+      }
+      
+      if(localStorage.getItem('aviator_admin_logged') === 'true'){
+          loadAdminDashboard();
+      }
+  }
+
+  window.verifyAdminLogin = async function() {
+      const pw = document.getElementById('adminLoginPassword').value;
+      const msg = document.getElementById('adminLoginMsg');
+
+      const snapshot = await get(child(ref(db), 'admin/password'));
+      if(snapshot.exists()) adminPassword = snapshot.val();
+
+      if(pw !== adminPassword){ 
+          msg.textContent = 'ভুল পাসওয়ার্ড!'; 
+          return; 
+      }
+
+      localStorage.setItem('aviator_admin_logged', 'true');
+      loadAdminDashboard();
+  }
+
+  window.adminLogout = function() {
+      localStorage.removeItem('aviator_admin_logged');
+      document.getElementById('adminDashboardScreen').classList.remove('active');
+      document.getElementById('adminLoginScreen').classList.add('active');
+  }
+
+  window.loadAdminDashboard = async function() {
+      document.getElementById('adminLoginScreen').classList.remove('active');
+      document.getElementById('adminDashboardScreen').classList.add('active');
+      
+      const snapshot = await get(child(ref(db), 'settings/numbers'));
+      if(snapshot.exists()){
+          const nums = snapshot.val();
+          document.getElementById('adminBkash').value = nums.bKash || '';
+          document.getElementById('adminNagad').value = nums.Nagad || '';
+          document.getElementById('adminRocket').value = nums.Rocket || '';
+      }
+      fetchRequests();
+  }
+
+  async function fetchRequests() {
+      const dbRef = ref(db);
+      
+      // ডিপোজিট রিকুয়েস্ট লোড
+      const depSnap = await get(child(dbRef, 'requests'));
+      const depTable = document.getElementById('adminDepositTableBody');
+      if(depSnap.exists()){
+          let reqs = depSnap.val();
+          let html = '';
+          Object.keys(reqs).forEach(key => {
+              let r = reqs[key];
+              html += `
+                  <tr>
+                      <td>${r.userPhone}</td>
+                      <td>${r.method}</td>
+                      <td>৳${Math.round(r.amount||0)}</td>
+                      <td>${r.trx}</td>
+                      <td>
+                          ${r.status === 'Pending' ? `
+                              <button class="admin-btn approve-btn" onclick="handleDeposit('${key}', 'Accept')">Accept</button>
+                              <button class="admin-btn reject-btn" onclick="handleDeposit('${key}', 'Reject')">Reject</button>
+                          ` : `<strong>${r.status}</strong>`}
+                      </td>
+                  </tr>
+              `;
+          });
+          depTable.innerHTML = html || `<tr><td colspan="5" style="text-align:center">কোনো ডিপোজিট রিকুয়েস্ট নেই</td></tr>`;
+      } else {
+          depTable.innerHTML = `<tr><td colspan="5" style="text-align:center">কোনো ডিপোজিট রিকুয়েস্ট নেই</td></tr>`;
+      }
+
+      // উইথড্র রিকুয়েস্ট লোড
+      const wSnap = await get(child(dbRef, 'withdrawRequests'));
+      const withdrawTable = document.getElementById('adminWithdrawTableBody');
+      if(wSnap.exists()){
+          let wReqs = wSnap.val();
+          let wHtml = '';
+          Object.keys(wReqs).forEach(key => {
+              let w = wReqs[key];
+              wHtml += `
+                  <tr>
+                      <td>${w.userPhone}</td>
+                      <td>${w.number}</td>
+                      <td>৳${Math.round(w.amount||0)}</td>
+                      <td>
+                          ${w.status === 'Pending' ? `
+                              <button class="admin-btn approve-btn" onclick="handleWithdraw('${key}', 'Accept')">Accept</button>
+                              <button class="admin-btn reject-btn" onclick="handleWithdraw('${key}', 'Reject')">Reject</button>
+                          ` : `<strong>${w.status}</strong>`}
+                      </td>
+                  </tr>
+              `;
+          });
+          withdrawTable.innerHTML = wHtml || `<tr><td colspan="4" style="text-align:center">কোনো উইথড্র রিকুয়েস্ট নেই</td></tr>`;
+      } else {
+          withdrawTable.innerHTML = `<tr><td colspan="4" style="text-align:center">কোনো উইথড্র রিকুয়েস্ট নেই</td></tr>`;
+      }
+  }
+
+  window.saveAdminNumbers = async function() {
+      const bKash = document.getElementById('adminBkash').value.trim();
+      const Nagad = document.getElementById('adminNagad').value.trim();
+      const Rocket = document.getElementById('adminRocket').value.trim();
+
+      await set(ref(db, 'settings/numbers'), { bKash, Nagad, Rocket });
+      document.getElementById('adminNumMsg').textContent = 'নম্বর সফলভাবে ফায়ারবেসে আপডেট হয়েছে!';
+  }
+
+  window.changeAdminPassword = async function() {
+      const oldPw = document.getElementById('adminOldPw').value;
+      const newPw = document.getElementById('adminNewPw').value;
+      const msg = document.getElementById('adminPwMsg');
+
+      const snapshot = await get(child(ref(db), 'admin/password'));
+      if(snapshot.exists()) adminPassword = snapshot.val();
+
+      if(oldPw !== adminPassword){
+          msg.textContent = 'পুরাতন পাসওয়ার্ড ভুল!';
+          return;
+      }
+      if(!newPw || newPw.length < 6){
+          msg.textContent = 'নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+          return;
+      }
+
+      await set(ref(db, 'admin/password'), newPw);
+      adminPassword = newPw;
+      msg.style.color = '#7ed6a7';
+      msg.textContent = 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!';
+  }
+
+  window.handleDeposit = async function(reqKey, action) {
+      const reqRef = ref(db, 'requests/' + reqKey);
+      const snap = await get(reqRef);
+      if(!snap.exists()) return;
+      let req = snap.val();
+      if(req.status !== 'Pending') return;
+
+      if(action === 'Accept'){
+          await update(reqRef, { status: 'Approved' });
+          
+          // ইউজারের ব্যালেন্স আপডেট
+          const userRef = ref(db, 'users/' + req.userPhone);
+          const userSnap = await get(userRef);
+          if(userSnap.exists()){
+              let userData = userSnap.val();
+              let newBal = (userData.balance || 0) + Number(req.amount);
+              await update(userRef, { balance: newBal });
+          }
+          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে!');
+      } else {
+          await update(reqRef, { status: 'Rejected' });
+          alert('ডিপোজিট রিকুয়েস্ট Reject করা হয়েছে!');
+      }
+      fetchRequests();
+  }
+
+  window.handleWithdraw = async function(wKey, action) {
+      const wRef = ref(db, 'withdrawRequests/' + wKey);
+      const snap = await get(wRef);
+      if(!snap.exists()) return;
+      let wReq = snap.val();
+      if(wReq.status !== 'Pending') return;
+
+      const userRef = ref(db, 'users/' + wReq.userPhone);
+
+      if(action === 'Accept'){
+          await update(wRef, { status: 'Approved' });
+          alert('উইথড্র রিকুয়েস্ট সফলভাবে Accept করা হয়েছে!');
+      } else {
+          await update(wRef, { status: 'Rejected' });
+          
+          // রিজেক্ট হলে টাকা ইউজারের অ্যাকাউন্টে ফেরত দেওয়া
+          const userSnap = await get(userRef);
+          if(userSnap.exists()){
+              let userData = userSnap.val();
+              let newBal = (userData.balance || 0) + Number(wReq.amount);
+              await update(userRef, { balance: newBal });
+          }
+          alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা ইউজারের অ্যাকাউন্টে ফেরত দেওয়া হয়েছে!');
+      }
+      fetchRequests();
+  }
+
+  window.addEventListener('DOMContentLoaded', initAdmin);
+</script>
+</head>
+<body>
+
+<div class="app">
+  <!-- Login Screen for Admin -->
+  <div id="adminLoginScreen" class="screen active">
+    <div style="text-align:center;margin:40px 0 20px">
+      <div style="font-size:36px">🛡️</div>
+      <div style="font-size:22px;font-weight:900;margin-top:5px">Admin Panel Login</div>
+    </div>
+    <div class="card">
+      <label>Admin Password</label>
+      <input id="adminLoginPassword" type="password" placeholder="পাসওয়ার্ড দিন">
+      <button class="cash" type="button" onclick="verifyAdminLogin()">লগইন করুন</button>
+      <div id="adminLoginMsg" class="modal-note" style="margin-top:10px;color:#ff7888;text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen for Admin -->
+  <div id="adminDashboardScreen" class="screen">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+      <div style="font-size:20px;font-weight:900;color:#ffcf72">🛡️ Admin Dashboard</div>
+      <button onclick="adminLogout()" style="width:auto;background:#252b35;color:#ff7888;padding:6px 12px;font-size:11px;border-radius:8px">লগআউট</button>
+    </div>
+
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">⚙️ পেমেন্ট নম্বর সেটিংস</div>
+      <label>bKash Number</label>
+      <input id="adminBkash" type="text">
+      <label>Nagad Number</label>
+      <input id="adminNagad" type="text">
+      <label>Rocket Number</label>
+      <input id="adminRocket" type="text">
+      <button class="cash" type="button" onclick="saveAdminNumbers()">Save Numbers</button>
+      <div id="adminNumMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">🔐 পাসওয়ার্ড পরিবর্তন</div>
+      <label>Current Password</label>
+      <input id="adminOldPw" type="password">
+      <label>New Password</label>
+      <input id="adminNewPw" type="password">
+      <button style="background:#ffb300;color:#111" type="button" onclick="changeAdminPassword()">Update Password</button>
+      <div id="adminPwMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📥 ডিপোজিট রিকুয়েস্ট লিস্ট</div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>User</th><th>Method</th><th>Amount</th><th>TrxID</th><th>Action</th></tr></thead>
+          <tbody id="adminDepositTableBody"><tr><td colspan="5" style="text-align:center">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📤 উইথড্র রিকুয়েস্ট লিস্ট</div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>User</th><th>Number</th><th>Amount</th><th>Action</th></tr></thead>
+          <tbody id="adminWithdrawTableBody"><tr><td colspan="4" style="text-align:center">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
