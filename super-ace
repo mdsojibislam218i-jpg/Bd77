@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Ace - Custom Pool Payouts</title>
+    
+    <!-- Firebase CDN (Compat Version for Easy Integration) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -169,7 +174,7 @@
     <div class="top-status-bar">
         <div class="online-badge">
             <div class="online-dot"></div>
-            <span>Online: <strong id="onlineCountVal">1,482</strong></span>
+            <span>Online: <strong id="onlineCountVal">0</strong></span>
         </div>
         <div style="font-size: 10px; color: #aaa;">SUPER ACE ROOM #09</div>
     </div>
@@ -209,7 +214,7 @@
     <div class="slot-grid" id="slotGrid"></div>
 
     <div class="info-panel">
-        <div>Bal: <span id="balanceVal">25000</span>৳</div>
+        <div>Bal: <span id="balanceVal">0.00</span>৳</div>
         <div>Win: <span id="winVal">0.00</span>৳</div>
         <div>FreeSpins: <span id="freeSpinVal">0</span></div>
     </div>
@@ -226,6 +231,47 @@
 </div>
 
 <script>
+    // ==========================================
+    // FIREBASE CONFIG & SETUP (তোমার ক্রিপডেনশিয়াল বসাও)
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // ইউজার ও রুম ট্র্যাকিং রেফারেন্স
+    const roomRef = db.collection('game_rooms').doc('room_09');
+
+    // রিয়েল-টাইম অনলাইন কাউন্ট লিসেনার (জিরো থেকে শুরু, কেউ কানেক্ট করলে বা আপডেট হলে বাড়াবে)
+    let onlineUsers = 0;
+    document.getElementById('onlineCountVal').innerText = onlineUsers;
+
+    // এক্সাম্পল হিসেবে এই ইউজার ঢুকলে কাউন্ট ১ বাড়ানো বা সিঙ্ক করা
+    roomRef.set({ onlineCount: firebase.firestore.FieldValue.increment(1) }, { merge: true }).catch(() => {});
+    roomRef.onSnapshot((doc) => {
+        if (doc.exists) {
+            let data = doc.data();
+            document.getElementById('onlineCountVal').innerText = (data.onlineCount || 0).toLocaleString();
+        }
+    });
+
+    // পেজ ক্লোজ হলে বা রিফ্রেশ করলে অনলাইন কাউন্ট কমানোর অপশন (অপশনাল)
+    window.addEventListener('beforeunload', () => {
+        roomRef.set({ onlineCount: firebase.firestore.FieldValue.increment(-1) }, { merge: true }).catch(() => {});
+    });
+
+    // ==========================================
+    // GAME AUDIO & LOGIC
+    // ==========================================
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTune(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -261,20 +307,11 @@
         }
     }
 
-    let onlineUsers = 1482;
-    setInterval(() => {
-        onlineUsers += Math.floor(Math.random() * 11) - 5;
-        if (onlineUsers < 1350) onlineUsers = 1350;
-        document.getElementById('onlineCountVal').innerText = onlineUsers.toLocaleString();
-    }, 4000);
-
     let sessionStartTime = Date.now();
     let firstScatterDone = false;
     let nextScatterTargetTime = sessionStartTime + (30 * 60 * 1000);
     let spinCounter = 0;
 
-    // আপনার দেওয়া নির্দিষ্ট উইন অ্যামাউন্ট পুল (পয়সা ও টাকার লিস্ট)
-    // [৫০পয়সা, ৬০পয়সা, ৮০পয়সা, ৫টাকা, ১০টাকা, ৩০টাকা, ৪০টাকা, ৫০টাকা, ৯০টাকা, ১৫০টাকা]
     const customWinPool = [0.50, 0.60, 0.80, 5.0, 10.0, 30.0, 40.0, 50.0, 90.0, 150.0];
 
     window.addEventListener('load', () => {
@@ -294,7 +331,7 @@
 
     const scatterCard = { val: 'SCATTER', suit: '👑', color: '#ff4500', isScatter: true };
 
-    let balance = 25000;
+    let balance = 0.00; // ব্যালেন্স জিরো করা হলো
     const betLevels = [0.50, 1.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 50.0, 60.0, 100.0, 180.0, 200.0];
     let betIndex = 0;
     let freeSpins = 0;
@@ -316,11 +353,11 @@
     }
 
     function buySelectedScatter(cost, spins) {
-        if (isSpinning || balance < cost) { alert('Insufficient balance!'); return; }
+        if (isSpinning || balance < cost) { alert('Insufficient balance! Please deposit/add balance first.'); return; }
         balance -= cost; document.getElementById('balanceVal').innerText = balance.toFixed(2);
         freeSpins += spins; document.getElementById('freeSpinVal').innerText = freeSpins;
         toggleScatterModal(false); playTune('big_win');
-        let bonusWin = customWinPool[customWinPool.length - 1]; // ১৫০ টাকা বা বড় দান
+        let bonusWin = customWinPool[customWinPool.length - 1]; 
         balance += bonusWin;
         document.getElementById('balanceVal').innerText = balance.toFixed(2);
         document.getElementById('winVal').innerText = bonusWin.toFixed(2);
@@ -390,7 +427,7 @@
         let wasInFreeSpin = freeSpins > 0;
 
         if (freeSpins <= 0 && balance < bet) {
-            alert('Insufficient balance!');
+            alert('Insufficient balance! Balance is 0.00');
             if (autoPlayInterval) toggleAutoPlay();
             return;
         }
@@ -413,12 +450,8 @@
 
         if (Date.now() >= nextScatterTargetTime) {
             scatterCount = 3;
-            if (!firstScatterDone) {
-                firstScatterDone = true;
-                nextScatterTargetTime = Date.now() + (60 * 60 * 1000);
-            } else {
-                nextScatterTargetTime = Date.now() + (60 * 60 * 1000);
-            }
+            firstScatterDone = true;
+            nextScatterTargetTime = Date.now() + (60 * 60 * 1000);
         } else if (!wasInFreeSpin && Math.random() < 0.08) {
             scatterCount = 3;
         }
@@ -452,13 +485,12 @@
                 freeSpins += 10;
                 document.getElementById('freeSpinVal').innerText = freeSpins;
                 playTune('big_win');
-                // স্ক্যাটার হিট হলে পুলের ওপরের দিক থেকে বড় দান (৫০, ৯০, বা ১৫০ টাকা)
                 let highTierPool = [30.0, 40.0, 50.0, 90.0, 150.0];
                 let scatterBonusWin = highTierPool[Math.floor(Math.random() * highTierPool.length)];
                 balance += scatterBonusWin;
                 document.getElementById('balanceVal').innerText = balance.toFixed(2);
                 document.getElementById('winVal').innerText = scatterBonusWin.toFixed(2);
-                triggerWinPopup("👑 MEGA SCATTER HIT!", `+10 Free Spins & ${scatterBonusWin.toFixed(2)}৳!`);
+                triggerWinPopup("👑 MEGA SCATTER HIT!", `+10 Free Spins & ${scatterBonusBonus || scatterBonusWin.toFixed(2)}৳!`);
                 document.getElementById('msgText').innerText = "JACKPOT SCATTER! Mega win unlocked!";
                 hasWon = true;
                 checkAndStartAutoFreeSpin();
@@ -470,11 +502,9 @@
             if (allowWin && matchIndices.length >= 2 && scatterCount < 3) {
                 let calculatedWin = 0;
                 if (wasInFreeSpin) {
-                    // ফ্রি-স্পিন মোডের ভেতরে বড় দান পুল থেকে নির্বাচন
                     let fsPool = [5.0, 10.0, 30.0, 40.0, 50.0, 90.0, 150.0];
                     calculatedWin = fsPool[Math.floor(Math.random() * fsPool.length)];
                 } else {
-                    // বেস গেমে ছোট বা পয়েন্ট/টাকা পুল থেকে নির্বাচন (৫০পয়সা, ৬০পয়সা, ৮০পয়সা, ৫টাকা, ১০টাকা)
                     let basePool = [0.50, 0.60, 0.80, 5.0, 10.0];
                     calculatedWin = basePool[Math.floor(Math.random() * basePool.length)];
                 }
