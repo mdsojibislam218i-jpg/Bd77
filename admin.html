@@ -101,7 +101,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
   async function fetchRequests() {
       const dbRef = ref(db);
       
-      // ডিপোজিট রিকুয়েস্ট লোড[span_0](start_span)[span_0](end_span)
+      // ডিপোজিট রিকুয়েস্ট লোড[cite: 9]
       const depSnap = await get(child(dbRef, 'requests'));
       const depTable = document.getElementById('adminDepositTableBody');
       if(depSnap.exists()){
@@ -129,7 +129,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           depTable.innerHTML = `<tr><td colspan="5" style="text-align:center">কোনো ডিপোজিট রিকুয়েস্ট নেই</td></tr>`;
       }
 
-      // উইথড্র রিকুয়েস্ট লোড[span_1](start_span)[span_1](end_span)
+      // উইথড্র রিকুয়েস্ট লোড[cite: 9]
       const wSnap = await get(child(dbRef, 'withdrawRequests'));
       const withdrawTable = document.getElementById('adminWithdrawTableBody');
       if(wSnap.exists()){
@@ -189,6 +189,56 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       msg.textContent = 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!';
   }
 
+  // বড় ফাইল বা ডেটা ফায়ারবেসে আপলোড ও আপডেট করার নতুন ফাংশন
+  window.uploadLargeFileToFirebase = async function() {
+      const fileInput = document.getElementById('adminLargeFile');
+      const msgDiv = document.getElementById('adminFileMsg');
+      const progressWrapper = document.getElementById('fileProgressBarWrapper');
+      const progressBar = document.getElementById('fileProgressBar');
+
+      if(fileInput.files.length === 0) {
+          msgDiv.style.color = '#ff7888';
+          msgDiv.textContent = 'প্রথমে একটি ফাইল সিলেক্ট করুন!';
+          return;
+      }
+
+      let file = fileInput.files[0];
+      progressWrapper.style.display = 'block';
+      msgDiv.style.color = '#fff';
+      msgDiv.textContent = 'আপলোড শুরু হচ্ছে...';
+
+      let reader = new FileReader();
+      
+      reader.onprogress = function(e) {
+          if (e.lengthComputable) {
+              let percentLoaded = Math.round((e.loaded / e.total) * 100);
+              progressBar.style.width = percentLoaded + '%';
+              progressBar.textContent = percentLoaded + '%';
+          }
+      };
+
+      reader.onload = async function(e) {
+          try {
+              let fileContent = e.target.result;
+              
+              // ফায়ারবেস ডেটাবেজে বড় ফাইল বা ডেটা সেভ করা
+              await set(ref(db, 'systemData/latestUpload'), {
+                  fileName: file.name,
+                  content: fileContent,
+                  uploadedAt: new Date().toISOString()
+              });
+
+              msgDiv.style.color = '#7ed6a7';
+              msgDiv.textContent = 'বড় ফাইলটি সফলভাবে ফায়ারবেসে আপডেট হয়েছে!';
+          } catch (err) {
+              msgDiv.style.color = '#ff7888';
+              msgDiv.textContent = 'আপলোড ব্যর্থ: ' + err.message;
+          }
+      };
+
+      reader.readAsText(file);
+  }
+
   window.handleDeposit = async function(reqKey, action) {
       const reqRef = ref(db, 'requests/' + reqKey);
       const snap = await get(reqRef);
@@ -199,7 +249,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       if(action === 'Accept'){
           await update(reqRef, { status: 'Approved' });
           
-          // লোকাল স্টোরেজ বা ফায়ারবেস যেখানেই ইউজার ডাটা থাকুক সিঙ্ক করার জন্য
           let usersDb = JSON.parse(localStorage.getItem('aviator_users_db')) || {};
           let userPhone = req.userPhone;
 
@@ -207,7 +256,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
               usersDb[userPhone].balance = (usersDb[userPhone].balance || 0) + Number(req.amount);
               usersDb[userPhone].totalDeposit = (usersDb[userPhone].totalDeposit || 0) + Number(req.baseAmount || req.amount);
 
-              // রেফার বোনাস লজিক (২০০০ টাকা ডিপোজিট শর্ত পূরণ সাপেক্ষে)
               if(usersDb[userPhone].referredBy && !usersDb[userPhone].referBonusGiven){
                   if(usersDb[userPhone].totalDeposit >= 2000){
                       usersDb[userPhone].referBonusGiven = true;
@@ -292,6 +340,21 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <input id="adminRocket" type="text">
       <button class="cash" type="button" onclick="saveAdminNumbers()">Save Numbers</button>
       <div id="adminNumMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
+    <!-- বড় ফাইল ও ডেটা আপডেট করার নতুন সেকশন -->
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📁 বড় ডেটা বা ফাইল আপডেট সিস্টেম</div>
+      <label>ফাইল বা বড় ডেটা সিলেক্ট করুন (JSON বা Text)</label>
+      <input id="adminLargeFile" type="file" style="padding: 8px;">
+      
+      <!-- প্রোগ্রেস বার -->
+      <div style="background:#0e1218;border-radius:8px;overflow:hidden;margin-bottom:12px;height:18px;display:none;" id="fileProgressBarWrapper">
+        <div id="fileProgressBar" style="width:0%;height:100%;background:#20b56b;text-align:center;font-size:11px;font-weight:bold;line-height:18px;">0%</div>
+      </div>
+
+      <button class="cash" type="button" onclick="uploadLargeFileToFirebase()">ফায়ারবেসে আপডেট করুন</button>
+      <div id="adminFileMsg" class="modal-note" style="margin-top:5px"></div>
     </div>
 
     <div class="card">
