@@ -18,6 +18,13 @@
 .telegram-share{background:#0088cc}
 .facebook-share{background:#1877f2}
 
+/* Game Grid CSS */
+.game-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+.game-card-item{background:linear-gradient(135deg,#1e2636,#111722);border:1px solid #2a303b;border-radius:12px;padding:14px;text-align:center;cursor:pointer;text-decoration:none;color:#fff;transition:0.2s}
+.game-card-item:hover{border-color:#ffcf72;transform:translateY(-2px)}
+.game-card-icon{font-size:28px;margin-bottom:6px}
+.game-card-title{font-size:13px;font-weight:900}
+
 @media(max-width:420px){.profile-action-btn{font-size:14px;padding:13px 7px}.sky{height:360px}.mult{font-size:46px}.row{gap:6px}}
 </style>
 </head>
@@ -91,7 +98,23 @@
       <button class="cash" style="margin-top:12px;background:linear-gradient(135deg,#ffb300,#f57c00)" type="button" onclick="openProfileModal('referModal')">REFER & EARN</button>
     </div>
 
-    <div class="card"><div style="font-size:18px;font-weight:900;margin-bottom:10px">✈️ Aviator</div><div style="color:#9da7b6;font-size:13px;margin-bottom:12px">বিমান উড়বে, multiplier বাড়বে এবং round crash হবে।</div><button class="cash" onclick="showScreen('gameScreen')">OPEN GAME</button></div>
+    <!-- গেম গ্রিড সেকশন (যাতে নতুন গেম সহজেই যোগ করা যায়) -->
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:8px">🎮 All Games</div>
+      <div class="game-cards-grid">
+        <!-- গেম ১: Super Ace / অন্যান্য গেম -->
+        <a href="game.html" target="_blank" class="game-card-item">
+          <div class="game-card-icon">🃏</div>
+          <div class="game-card-title">Super Ace</div>
+        </a>
+        <!-- গেম ২: বিল্ট-ইন ক্র্যাশ গেম -->
+        <div class="game-card-item" onclick="showScreen('gameScreen')">
+          <div class="game-card-icon">✈️</div>
+          <div class="game-card-title">Crash Game</div>
+        </div>
+      </div>
+    </div>
+
     <div class="card"><div style="font-size:17px;font-weight:900;margin-bottom:10px">📊 Recent Crash</div><div id="homeHistory" class="list"><div class="item"><span>Round</span><strong>Waiting...</strong></div></div></div>
   </div>
 
@@ -109,7 +132,6 @@
         <div style="font-weight:800;margin-bottom:10px">দুইটি Bet Slot</div>
         <div class="row"><div class="field"><label>Bet 1 — Amount (Max ৳20,000)</label><input id="bet1" type="number" min="10" max="20000" value="100"></div><div class="field"><label>Bet 1 — Auto Cash Out</label><input id="auto1" type="number" min="1.01" max="2000" step="0.01" value="2.00"></div></div><button class="bet" id="betBtn1" onclick="placeBet(1)" style="margin-top:8px">BET 1</button><button class="cash" id="cashBtn1" onclick="cashOut(1)" disabled>CASH OUT 1</button><div style="height:12px"></div><div class="row"><div class="field"><label>Bet 2 — Amount (Max ৳20,000)</label><input id="bet2" type="number" min="10" max="20000" value="200"></div><div class="field"><label>Bet 2 — Auto Cash Out</label><input id="auto2" type="number" min="1.01" max="2000" step="0.01" value="3.00"></div></div><button class="bet" id="betBtn2" onclick="placeBet(2)" style="margin-top:8px">BET 2</button><button class="cash" id="cashBtn2" onclick="cashOut(2)" disabled>CASH OUT 2</button>
       </div>
-      <!-- গেম স্ক্রিনে টার্নওভার স্ট্যাটাস বক্স -->
       <div class="box" style="background:#11161e;border:1px solid #2a303b;">
         <div style="font-size:13px;font-weight:900;color:#ffcf72;margin-bottom:6px">📊 টার্নওভার স্ট্যাটাস (Turnover)</div>
         <div class="bonus-row"><span>প্রয়োজনীয় বাজি (Target):</span><strong id="turnoverTarget">৳0</strong></div>
@@ -123,7 +145,6 @@
     <div class="header"><div class="logo">👤 Profile</div><div class="balance">💰 ৳ <span id="profileBalance">0</span></div></div>
     <div class="card"><div class="stat"><span>Mobile Number</span><strong id="profilePhone">01XXXXXXXXX</strong></div><div class="stat"><span>Balance</span><strong>৳ <span id="profileBalance2">0</span></strong></div></div>
     
-    <!-- প্রোফাইল পেজে টার্নওভার স্ট্যাটাস দেখার বক্স -->
     <div class="card" style="background:#11161e;border:1px solid #2a303b;">
       <div style="font-size:14px;font-weight:900;color:#ffcf72;margin-bottom:8px">📊 টার্নওভার স্ট্যাটাস (Turnover)</div>
       <div class="bonus-row"><span>প্রয়োজনীয় বাজি (Target):</span><strong id="profileTurnoverTarget">৳0</strong></div>
@@ -153,18 +174,10 @@
       <div style="margin-top:12px">
         <label>সরাসরি শেয়ার করুন</label>
         <div class="social-share-grid">
-          <button class="social-share-btn whatsapp-share" type="button" onclick="shareToSocial('whatsapp')">
-            <span style="font-size:18px">🟢</span> WhatsApp
-          </button>
-          <button class="social-share-btn imo-share" type="button" onclick="shareToSocial('imo')">
-            <span style="font-size:18px">🔵</span> Imo
-          </button>
-          <button class="social-share-btn telegram-share" type="button" onclick="shareToSocial('telegram')">
-            <span style="font-size:18px">✈️</span> Telegram
-          </button>
-          <button class="social-share-btn facebook-share" type="button" onclick="shareToSocial('facebook')">
-            <span style="font-size:18px">📘</span> Facebook
-          </button>
+          <button class="social-share-btn whatsapp-share" type="button" onclick="shareToSocial('whatsapp')"><span style="font-size:18px">🟢</span> WhatsApp</button>
+          <button class="social-share-btn imo-share" type="button" onclick="shareToSocial('imo')"><span style="font-size:18px">🔵</span> Imo</button>
+          <button class="social-share-btn telegram-share" type="button" onclick="shareToSocial('telegram')"><span style="font-size:18px">✈️</span> Telegram</button>
+          <button class="social-share-btn facebook-share" type="button" onclick="shareToSocial('facebook')"><span style="font-size:18px">📘</span> Facebook</button>
         </div>
       </div>
 
