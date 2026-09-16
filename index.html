@@ -98,16 +98,21 @@
       <button class="cash" style="margin-top:12px;background:linear-gradient(135deg,#ffb300,#f57c00)" type="button" onclick="openProfileModal('referModal')">REFER & EARN</button>
     </div>
 
-    <!-- গেম গ্রিড সেকশন (যাতে নতুন গেম সহজেই যোগ করা যায়) -->
+    <!-- গেম গ্রিড সেকশন (যাতে নতুন স্লট গেম ও আগের গেম একসাথে থাকে) -->
     <div class="card">
       <div style="font-size:16px;font-weight:900;margin-bottom:8px">🎮 All Games</div>
       <div class="game-cards-grid">
-        <!-- গেম ১: Super Ace / অন্যান্য গেম -->
+        <!-- নতুন ভিআইপি স্লট গেম -->
+        <a href="slot.html" target="_blank" class="game-card-item">
+          <div class="game-card-icon">🎰</div>
+          <div class="game-card-title">VIP Slot Game</div>
+        </a>
+        <!-- আগের সুপার এস গেম -->
         <a href="game.html" target="_blank" class="game-card-item">
           <div class="game-card-icon">🃏</div>
           <div class="game-card-title">Super Ace</div>
         </a>
-        <!-- গেম ২: বিল্ট-ইন ক্র্যাশ গেম -->
+        <!-- আগের ক্র্যাশ গেম -->
         <div class="game-card-item" onclick="showScreen('gameScreen')">
           <div class="game-card-icon">✈️</div>
           <div class="game-card-title">Crash Game</div>
@@ -728,7 +733,7 @@ function saveNickname(){
     setTimeout(()=>document.getElementById('nicknameForm').classList.remove('show'),700)
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){['referModal','depositModal','depositSuccessModal','moneyModal','withdrawSuccessModal','passwordModal'].forEach(id=>closeProfileModal(id));closePasswordModal()}})
+document.addEventListener('keydown',e=>{e.key==='Escape'&&(['referModal','depositModal','depositSuccessModal','moneyModal','withdrawSuccessModal','passwordModal'].forEach(id=>closeProfileModal(id)),closePasswordModal())})
 window.addEventListener('DOMContentLoaded',()=>{
     checkAuthStatus();
     startCountdown();
