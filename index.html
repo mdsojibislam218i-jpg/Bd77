@@ -184,7 +184,7 @@
         <div style="font-size:21px;font-weight:900">🎁 Referral Program</div>
         <button class="modal-close" type="button" onclick="closeProfileModal('referModal')">×</button>
       </div>
-      <div class="modal-note">আপনার অ্যাপের নাম এবং ইউনিক রেফার আইডি সহ লিংক শেয়ার করুন। বন্ধু এই লিংকে ক্লিক করে অ্যাকাউন্ট খুলে মোট ৳২,০০০ ডিপোজিট ও ৳৫,০০০ বাজি ধরলেই আপনি পাবেন ৳৩৯৯ বোনাস!</div>
+      <div class="modal-note">আপনার অ্যাপের নাম এবং ইউনিক রেফার আইডি সহ লিংক শেয়ার করুন। বন্ধু এই লিংকে ক্লিক করে অ্যাকাউন্ট খুলে মোট ৳২,০০০ ডিপোজিট ও ৳৫,০০০ বাজি ধরলেই পাবেন ৳৩৯৯ বোনাস!</div>
       
       <label style="margin-top:12px">অ্যাপের নাম ও রেফার আইডিযুক্ত লিংক</label>
       <div class="row">
@@ -206,6 +206,9 @@
         <div class="bonus-title">📊 আপনার রেফার স্ট্যাটাস</div>
         <div class="bonus-row"><span>মোট রেফার সফল:</span><strong id="totalReferredCount">0 জন</strong></div>
         <div class="bonus-row"><span>বোনাস অর্জিত:</span><strong id="totalReferBonus">৳0</strong></div>
+        <!-- নতুন দুটি ফিচার যোগ করা হলো -->
+        <div class="bonus-row"><span>মোট ডিপোজিট (All Deposits):</span><strong id="totalReferredDeposits">৳0</strong></div>
+        <div class="bonus-row"><span>শেষ ১২ ঘণ্টায় ডিপোজিটকারী:</span><strong id="last12HoursDepositorsCount">0 জন</strong></div>
       </div>
     </div>
   </div>
@@ -313,7 +316,6 @@ let multiplier=1,crashed=false,roundNo=1,start=0,crashAt=0,countdownTimer=null;
 let bets={1:{active:false,amount:0},2:{active:false,amount:0}},history=[];
 const multEl=document.getElementById('mult'),stateEl=document.getElementById('state'),plane=document.getElementById('plane'),sky=document.getElementById('sky'),countdown=document.getElementById('countdown'),countNum=document.getElementById('countNum');
 
-// পেজ লোড হওয়ার সময় URL থেকে রেফার কোড চেক করা এবং অটো ইনপুট ফিল্ডে বসিয়ে দেওয়া
 window.addEventListener('DOMContentLoaded',()=>{
     const urlParams = new URLSearchParams(window.location.search);
     const refFromUrl = urlParams.get('ref');
@@ -322,7 +324,6 @@ window.addEventListener('DOMContentLoaded',()=>{
         if(regReferInput){
             regReferInput.value = refFromUrl;
         }
-        // অটো রেজিস্ট্রেশন ট্যাবে নিয়ে যাওয়া যাতে নতুন ইউজার সহজে সাইন আপ করতে পারে
         switchAuthTab('register');
     }
 
@@ -506,8 +507,6 @@ function syncAppBalance(){
     if(currentUserPhone && usersDb[currentUserPhone]){
         let user = usersDb[currentUserPhone];
         
-        // অ্যাপের নাম এবং ইউজারের ইউনিক রেফার আইডি দিয়ে ডাইনামিক রেফার লিংক তৈরি করা
-        let appName = "AviatorDemo"; 
         let fullReferLink = window.location.origin + window.location.pathname + "?ref=" + user.myReferCode;
         
         const refCodeEl = document.getElementById('myReferCode');
@@ -517,6 +516,34 @@ function syncAppBalance(){
         if(refCountEl) refCountEl.textContent = (user.referStats ? user.referStats.count : 0) + ' জন';
         const refBonusEl = document.getElementById('totalReferBonus');
         if(refBonusEl) refBonusEl.textContent = '৳' + fmt(user.referStats ? user.referStats.bonusEarned : 0);
+
+        // মোট ডিপোজিট এবং শেষ ১২ ঘণ্টার ডিপোজিটকারী বন্ধুর সংখ্যা ক্যালকুলেশন ও আপডেট
+        let freshDb = JSON.parse(localStorage.getItem('aviator_full_db')) || globalDb;
+        let allRequests = freshDb.requests || [];
+        
+        let referredPhones = Object.keys(usersDb).filter(phone => usersDb[phone].referredBy === currentUserPhone);
+        
+        let totalReferredDeposits = 0;
+        let recentDepositorsSet = new Set();
+        let twelveHoursAgo = Date.now() - (12 * 60 * 60 * 1000);
+
+        allRequests.forEach(req => {
+            if(referredPhones.includes(req.userPhone) && req.status === 'Pending' || req.status === 'Approved' || req.status === 'Success'){
+                // এখানে সফল বা সব রিকুয়েস্ট কাউন্ট করতে পারো, বেস অ্যামাউন্ট যোগ করা হলো
+                let depAmount = req.baseAmount || req.amount || 0;
+                totalReferredDeposits += depAmount;
+
+                if(req.createdAt >= twelveHoursAgo){
+                    recentDepositorsSet.add(req.userPhone);
+                }
+            }
+        });
+
+        const totalDepEl = document.getElementById('totalReferredDeposits');
+        if(totalDepEl) totalDepEl.textContent = '৳' + fmt(totalReferredDeposits);
+
+        const last12CountEl = document.getElementById('last12HoursDepositorsCount');
+        if(last12CountEl) last12CountEl.textContent = recentDepositorsSet.size + ' জন';
 
         const tTarget = document.getElementById('turnoverTarget');
         const tCurrent = document.getElementById('turnoverCurrent');
