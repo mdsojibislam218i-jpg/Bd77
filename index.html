@@ -133,6 +133,12 @@
           <div class="game-card-icon">🎲</div>
           <div class="game-card-title">লুডু লবি</div>
         </div>
+        <!-- ৭. নতুন যুক্ত করা Super Ace 52 Cards VIP Slot গেম -->
+        <a href="super_ace_52.html" target="_blank" class="game-card-item" style="background: linear-gradient(135deg, #7c2d12, #b45309); grid-column: span 2;">
+          <div class="game-card-icon">🪙</div>
+          <div class="game-card-title">Super Ace 52 Cards VIP</div>
+          <div style="font-size: 10px; color: #fde047; margin-top:2px;">VIP Casino Experience</div>
+        </a>
       </div>
     </div>
 
@@ -206,7 +212,6 @@
         <div class="bonus-title">📊 আপনার রেফার স্ট্যাটাস</div>
         <div class="bonus-row"><span>মোট রেফার সফল:</span><strong id="totalReferredCount">0 জন</strong></div>
         <div class="bonus-row"><span>বোনাস অর্জিত:</span><strong id="totalReferBonus">৳0</strong></div>
-        <!-- নতুন দুটি ফিচার যোগ করা হলো -->
         <div class="bonus-row"><span>মোট ডিপোজিট (All Deposits):</span><strong id="totalReferredDeposits">৳0</strong></div>
         <div class="bonus-row"><span>শেষ ১২ ঘণ্টায় ডিপোজিটকারী:</span><strong id="last12HoursDepositorsCount">0 জন</strong></div>
       </div>
@@ -517,7 +522,6 @@ function syncAppBalance(){
         const refBonusEl = document.getElementById('totalReferBonus');
         if(refBonusEl) refBonusEl.textContent = '৳' + fmt(user.referStats ? user.referStats.bonusEarned : 0);
 
-        // মোট ডিপোজিট এবং শেষ ১২ ঘণ্টার ডিপোজিটকারী বন্ধুর সংখ্যা ক্যালকুলেশন ও আপডেট
         let freshDb = JSON.parse(localStorage.getItem('aviator_full_db')) || globalDb;
         let allRequests = freshDb.requests || [];
         
@@ -529,7 +533,6 @@ function syncAppBalance(){
 
         allRequests.forEach(req => {
             if(referredPhones.includes(req.userPhone) && req.status === 'Pending' || req.status === 'Approved' || req.status === 'Success'){
-                // এখানে সফল বা সব রিকুয়েস্ট কাউন্ট করতে পারো, বেস অ্যামাউন্ট যোগ করা হলো
                 let depAmount = req.baseAmount || req.amount || 0;
                 totalReferredDeposits += depAmount;
 
