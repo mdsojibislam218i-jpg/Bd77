@@ -91,7 +91,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       document.getElementById('adminLoginScreen').classList.remove('active');
       document.getElementById('adminDashboardScreen').classList.add('active');
       
-      // মোট ইউজার সংখ্যা কাউন্ট করা
       const usersSnap = await get(child(ref(db), 'users'));
       if(usersSnap.exists()){
           const usersData = usersSnap.val();
@@ -101,7 +100,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           document.getElementById('totalUsersCount').textContent = '0';
       }
 
-      // পেমেন্ট নম্বর লোড
       const numSnap = await get(child(ref(db), 'settings/numbers'));
       if(numSnap.exists()){
           const nums = numSnap.val();
@@ -110,7 +108,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           document.getElementById('adminRocket').value = nums.Rocket || '';
       }
 
-      // অফিশিয়াল নিউজ বা নোটিশ লোড
       const noticeSnap = await get(child(ref(db), 'settings/officialNotice'));
       if(noticeSnap.exists()){
           document.getElementById('adminNoticeText').value = noticeSnap.val() || '';
@@ -119,7 +116,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       fetchRequests();
   }
 
-  // নির্দিষ্ট ইউজারের অ্যাকাউন্টে টার্নওভার বা ব্যালেন্স যোগ করার ফাংশন
   window.giveUserTurnover = async function() {
       const phone = document.getElementById('targetUserPhone').value.trim();
       const amount = Number(document.getElementById('targetUserAmount').value);
@@ -136,7 +132,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 
       if(!userSnap.exists()){
           msg.style.color = '#ff7888';
-          msg.textContent = 'এই নম্বਰের কোনো ইউজার ডাটাবেজে পাওয়া যায়নি!';
+          msg.textContent = 'এই নম্বরের কোনো ইউজার ডাটাবেজে পাওয়া যায়নি!';
           return;
       }
 
@@ -248,6 +244,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       msg.textContent = 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!';
   }
 
+  // ডিপোজিট Accept করলে ইউজারের ব্যালেন্সে টাকা যোগ হওয়ার লজিক
   window.handleDeposit = async function(reqKey, action, phone, amount) {
       const reqRef = ref(db, 'requests/' + reqKey);
       const snap = await get(reqRef);
@@ -262,9 +259,10 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           if(userSnap.exists()){
               currentBal = userSnap.val().balance || 0;
           }
-          await update(userRef, { balance: currentBal + amount });
+          // ইউজারের একাউন্টে ডিপোজিটের টাকা যোগ করা হলো
+          await update(userRef, { balance: currentBal + Number(amount) });
           await update(reqRef, { status: 'Approved' });
-          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে!');
+          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে এবং ব্যালেন্স যোগ হয়েছে!');
       } else {
           await update(reqRef, { status: 'Rejected' });
           alert('ডিপোজিট রিকুয়েস্ট Reject করা হয়েছে!');
@@ -272,6 +270,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       fetchRequests();
   }
 
+  // উইথড্র Reject করলে ইউজারের টাকা একাউন্টে ব্যাক (রিফান্ড) আসার লজিক
   window.handleWithdraw = async function(wKey, action, phone, amount) {
       const wRef = ref(db, 'withdrawRequests/' + wKey);
       const snap = await get(wRef);
@@ -289,9 +288,10 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           if(userSnap.exists()){
               currentBal = userSnap.val().balance || 0;
           }
-          await update(userRef, { balance: currentBal + amount });
+          // উইথড্র রিজেক্ট হলে কেটে নেওয়া টাকা ইউজারের ব্যালেন্সে ফিরিয়ে দেওয়া হলো
+          await update(userRef, { balance: currentBal + Number(amount) });
           await update(wRef, { status: 'Rejected & Refunded' });
-          alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা রিফান্ড করা হয়েছে!');
+          alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা একাউন্টে রিফান্ড করা হয়েছে!');
       }
       fetchRequests();
   }
@@ -321,13 +321,11 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <button onclick="adminLogout()" style="width:auto;background:#252b35;color:#ff7888;padding:6px 12px;font-size:11px;border-radius:8px">লগআউট</button>
     </div>
 
-    <!-- মোট ইউজার কাউন্ট বক্স -->
     <div class="stat-box">
       <div style="font-size:13px;color:#9da7b6">মোট রেজিস্টার্ড ইউজার</div>
       <div class="stat-value" id="totalUsersCount">0</div>
     </div>
 
-    <!-- নির্দিষ্ট ইউজারে টার্নওভার/ব্যালেন্স অ্যাড করার সেকশন -->
     <div class="card">
       <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">🎯 ইউজার টার্নওভার / ব্যালেন্স অ্যাড</div>
       <label>ইউজারের মোবাইল নম্বর</label>
@@ -338,7 +336,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <div id="turnoverMsg" class="modal-note" style="margin-top:5px"></div>
     </div>
 
-    <!-- অফিশিয়াল নিউজ ও নোটিশ বোর্ড -->
     <div class="card">
       <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📢 অফিশিয়াল নিউজ ও নোটিশ বোর্ড</div>
       <label>বিজ্ঞাপন বা নোটিশের টেক্সট লিখুন</label>
@@ -384,7 +381,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <div style="overflow-x:auto">
         <table class="admin-table">
           <thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Action</th></tr></thead>
-          <tbody id="adminWithdrawTableBody"><tr><td colspan="4" style="text-align:center">Loading...</td></tr></tbody>
+          <tbody id="adminWithdrawTableBody"><tr><td colspan="4" style="text-align:center">কোনো উইথড্র রিকুয়েস্ট নেই</td></tr></tbody>
         </table>
       </div>
     </div>
