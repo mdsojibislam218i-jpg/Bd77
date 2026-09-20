@@ -337,6 +337,23 @@
           updateDepositNumberDisplay();
       }
   });
+
+  // রিয়েল-টাইম লাইভ ব্যালেন্স সিঙ্ক করার লজিক (যা সরাসরি ফায়ারবেস থেকে ব্যালেন্স আপডেট করবে)
+  window.initLiveUserSync = function(phone) {
+      if(!phone) return;
+      const userRef = ref(db, 'users/' + phone);
+      onValue(userRef, (snapshot) => {
+          if (snapshot.exists()) {
+              const userData = snapshot.val();
+              let liveBalance = userData.balance !== undefined ? userData.balance : 0;
+              balance = liveBalance;
+              if(usersDb[phone]) {
+                  usersDb[phone].balance = liveBalance;
+              }
+              updateBalance();
+          }
+      });
+  }
 </script>
 
 <script>
@@ -460,6 +477,11 @@ function handleRegister(){
         localStorage.setItem('aviator_current_user', phone);
         balance = 0;
         
+        // ফায়ারবেসে ইউজারের ডাটা সেট করা
+        if(window.fbDb && window.fbRef && window.fbSet){
+            window.fbSet(window.fbRef(window.fbDb, 'users/' + phone), usersDb[phone]);
+        }
+
         msg.textContent = '';
         checkAuthStatus();
     });
@@ -509,6 +531,7 @@ function checkAuthStatus(){
         showScreen('homeScreen');
         loadUserData();
         checkDailyBonusNotification();
+        if(window.initLiveUserSync) window.initLiveUserSync(currentUserPhone);
     }
 }
 
@@ -520,7 +543,6 @@ function checkDailyBonusNotification(){
 
     let todayStr = new Date().toDateString();
     if(user.lastDailyBonusDate !== todayStr){
-        // রাত ১২ টার পর বা নতুন দিনে অটো ইনবক্সে মেসেজ ঢুকবে
         user.lastDailyBonusDate = todayStr;
         user.inboxSms.unshift({
             id: Date.now(),
@@ -596,6 +618,10 @@ function updateBalance(){
         usersDb[currentUserPhone].balance = balance;
         usersDb[currentUserPhone].lastActive = Date.now();
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        // ফায়ারবেসেও লোকাল ব্যালেন্স সিঙ্ক করে রাখা
+        if(window.fbDb && window.fbRef && window.fbUpdate){
+            window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { balance: balance });
+        }
     }
     const b=document.getElementById('balance');if(b)b.textContent=fmt(balance);syncAppBalance()
 }
