@@ -360,7 +360,7 @@
             <div>⚙️</div>
             <div>WIN: <span id="winAmount" style="color:#f1c40f;">Tk 0.00</span></div>
             <div class="pg-badge">PG</div>
-            <div>BAL: <span id="balance" style="color:#f1c40f;">Tk 1,000.00</span></div>
+            <div>BAL: <span id="balance" style="color:#f1c40f;">Tk 0.00</span></div>
             <div>❓</div>
         </div>
 
@@ -402,6 +402,7 @@
                 loaderScreen.style.display = 'none';
                 gameContainer.style.display = 'flex';
                 initGrid();
+                updateUI(); // গেম ওপেন হওয়ার সাথেই ব্যালেন্স লোড হবে
             }, 600);
         }
     }, 30);
@@ -445,13 +446,24 @@
         { html: '<div class="tile-content"><span class="scatter-text">SCATTER<br>胡</span></div>', type: 'scatter' }
     ];
 
-    let balance = 1000.00;
+    // ড্যাশবোর্ড বা লোকাল স্টোরেজ থেকে ব্যালেন্স নেওয়ার ফাংশন (ডিফল্ট 0.00)
+    function getDashboardBalance() {
+        let savedBalance = localStorage.getItem('user_balance');
+        return savedBalance !== null ? parseFloat(savedBalance) : 0.00;
+    }
+
+    // ড্যাশবোর্ডে ব্যালেন্স সেভ করার ফাংশন
+    function saveDashboardBalance(newBal) {
+        localStorage.setItem('user_balance', newBal.toFixed(2));
+    }
+
+    let balance = getDashboardBalance();
     let currentBet = 2.00;
     const betOptions = [0.41, 1.00, 2.00, 5.00, 10.00, 20.00];
     let betIndex = 2;
     let freeSpinsLeft = 0;
-    let totalSpins = 0; // স্পিন কাউন্ট ট্র্যাক করার জন্য
-    let lastScatterSpin = 0; // শেষ কবে স্ক্যাটার পড়েছে তা ট্র্যাক করার জন্য
+    let totalSpins = 0; 
+    let lastScatterSpin = 0; 
 
     function initGrid() {
         const layout = document.getElementById('slotLayout');
@@ -477,8 +489,11 @@
     }
 
     function spinReels() {
+        // প্রতিবার স্পিন করার আগে ড্যাশবোর্ডের লেটেস্ট ব্যালেন্স রিড করে নেওয়া ভালো
+        balance = getDashboardBalance();
+
         if (freeSpinsLeft <= 0 && balance < currentBet) {
-            alert('অপর্যাপ্ত ব্যালেন্স!');
+            alert('ড্যাশবোর্ডে পর্যাপ্ত ব্যালেন্স নেই!');
             return;
         }
 
@@ -490,6 +505,7 @@
             updateMultipliers(true);
         } else {
             balance -= currentBet;
+            saveDashboardBalance(balance); // ড্যাশবোর্ডে ব্যালেন্স আপডেট সেভ করা
             updateUI();
             updateMultipliers(false);
         }
@@ -499,12 +515,11 @@
         
         const cells = document.querySelectorAll('.slot-cell');
         
-        // স্ক্যাটার পড়ার শর্ত নির্ধারণ (প্রথমে খুব সহজে একবার পড়বে, এরপর অনেক স্পিন পর পর পড়বে)
         let forceScatter = false;
         if (totalSpins === 2) {
-            forceScatter = true; // গেম শুরু করার পরপরই দ্বিতীয় স্পিনে স্ক্যাটার দিয়ে ইউজারকে আকৃষ্ট করবে
+            forceScatter = true; 
         } else if (totalSpins - lastScatterSpin > 25 && Math.random() < 0.15) {
-            forceScatter = true; // অনেকগুলো স্পিন (লস যাওয়ার) পর মাঝেমধ্যে স্ক্যাটার আসবে
+            forceScatter = true; 
         }
 
         let scatterPlacedCount = 0;
@@ -515,11 +530,10 @@
             const spinInterval = setInterval(() => {
                 let randSym;
                 if (forceScatter && scatterPlacedCount < 3 && (index === 2 || index === 9 || index === 14)) {
-                    randSym = symbols[4]; // Scatter Symbol
+                    randSym = symbols[4]; 
                     scatterPlacedCount++;
                 } else {
                     const randChance = Math.random();
-                    // স্ক্যাটারের আসার সম্ভাবনা অনেক কমিয়ে দেওয়া হয়েছে যাতে সবসময় না আসে
                     const symIndex = (randChance < 0.01) ? 4 : Math.floor(Math.random() * 4);
                     randSym = symbols[symIndex];
                 }
@@ -532,7 +546,7 @@
                     clearInterval(spinInterval);
                     if (randSym.type === 'scatter') {
                         cell.classList.add('scatter-tile');
-                    } else if (Math.random() > 0.85) { // বেশিরভাগ সময় লস বা নো-উইন রাখার জন্য উইনিং রেট কমিয়ে দেওয়া হয়েছে
+                    } else if (Math.random() > 0.85) { 
                         cell.classList.add('win');
                     }
 
@@ -558,7 +572,7 @@
         let scatters = document.querySelectorAll('.slot-cell.scatter-tile');
         if (scatters.length >= 3) {
             freeSpinsLeft += 10;
-            lastScatterSpin = totalSpins; // স্ক্যাটার পড়ার কাউন্ট সেভ করে রাখা হলো
+            lastScatterSpin = totalSpins; 
             playSound('scatter');
             const alertBox = document.getElementById('freeSpinAlert');
             alertBox.style.display = 'block';
@@ -569,12 +583,13 @@
 
         let winMultiplier = 0;
         document.querySelectorAll('.slot-cell.win').forEach(() => {
-            winMultiplier += (freeSpinsLeft > 0 ? 1.0 : 0.25); // উইনের অ্যামাউন্ট বেশ কম রাখা হয়েছে যাতে মাঝে মাঝেই লস হয়
+            winMultiplier += (freeSpinsLeft > 0 ? 1.0 : 0.25); 
         });
 
         if (winMultiplier > 0) {
             let totalWin = currentBet * winMultiplier;
-            balance += totalWin;
+            balance = getDashboardBalance() + totalWin; // উইন হওয়া টাকা মূল ব্যালেন্সের সাথে যোগ করা
+            saveDashboardBalance(balance); // ড্যাশবোর্ডে আপডেট ব্যালেন্স সেভ করা
             document.getElementById('winAmount').innerText = `Tk ${totalWin.toFixed(2)}`;
             playSound('win');
             updateUI();
@@ -590,6 +605,7 @@
     }
 
     function updateUI() {
+        balance = getDashboardBalance();
         document.getElementById('balance').innerText = `Tk ${balance.toFixed(2)}`;
     }
 </script>
