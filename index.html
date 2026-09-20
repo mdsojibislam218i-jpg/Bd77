@@ -10,7 +10,6 @@
 .auth-container{max-width:420px;margin:60px auto;padding:20px}.auth-card{background:#191f29;border:1px solid #2a303b;border-radius:16px;padding:24px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;background:#11161e;padding:4px;border-radius:10px}.auth-tab{background:transparent;color:#9da7b6;padding:10px;border-radius:8px;font-weight:bold;cursor:pointer}.auth-tab.active{background:#202733;color:#fff}
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(8,10,15,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column}.loading-overlay.show{display:flex}.spinner{width:50px;height:50px;border:4px solid #303846;border-top-color:#20b56b;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:15px}@keyframes spin{to{transform:rotate(360deg)}}.loading-text{font-size:16px;font-weight:bold;color:#fff;letter-spacing:1px}
 
-/* Social Share Grid for Refer */
 .social-share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
 .social-share-btn{border:0;border-radius:10px;padding:10px 4px;font-size:11px;font-weight:900;color:#fff;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
 .whatsapp-share{background:#25d366}
@@ -18,7 +17,6 @@
 .telegram-share{background:#0088cc}
 .facebook-share{background:#1877f2}
 
-/* Game Grid CSS */
 .game-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
 .game-card-item{background:linear-gradient(135deg,#1e2636,#111722);border:1px solid #2a303b;border-radius:12px;padding:14px;text-align:center;cursor:pointer;text-decoration:none;color:#fff;transition:0.2s}
 .game-card-item:hover{border-color:#ffcf72;transform:translateY(-2px)}
@@ -98,48 +96,54 @@
       <button class="cash" style="margin-top:12px;background:linear-gradient(135deg,#ffb300,#f57c00)" type="button" onclick="openProfileModal('referModal')">REFER & EARN</button>
     </div>
 
-    <!-- গেম গ্রিড সেকশন (সকল গেম সংরক্ষিত + Mahjong Ways যুক্ত) -->
+    <div class="card" style="background:linear-gradient(135deg,#1f2937,#111827);border:1px solid #7ed6a7">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;color:#7ed6a7;font-weight:900">🥚 WEEKLY & MONTHLY BONUS</div>
+          <div style="font-size:16px;font-weight:900;margin:4px 0">নিয়মিত খেলুন এবং বোনাস জিতুন!</div>
+          <div style="font-size:12px;color:#aeb7c6">সপ্তাহে বোনাস নেওয়ার জন্য অ্যাপটি উপভোগ করুন এবং বন্ধুদেরকে রেফার করুন।</div>
+        </div>
+        <div style="font-size:32px">🎁</div>
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 12px;">
+          <button class="small" style="flex: 1; background: #26303c; color: #7ed6a7;" type="button" onclick="alert('সাপ্তাহিক ডিম বোনাস ও অন্যান্য বোনাস পেতে নিয়মিত অ্যাপটি উপভোগ করুন এবং বন্ধুদের রেফার করুন!')">সাপ্তাহিক বোনাস</button>
+          <button class="small" style="flex: 1; background: #26303c; color: #ffcf72;" type="button" onclick="alert('মাসিক বোনাসের জন্য আপনার অ্যাকাউন্ট সক্রিয় রাখুন!')">মাসিক বোনাস</button>
+      </div>
+    </div>
+
     <div class="card">
       <div style="font-size:16px;font-weight:900;margin-bottom:8px">🎮 All Games</div>
       <div class="game-cards-grid">
-        <!-- ১. সুপার এস স্লট গেম -->
         <a href="super_ace.html" target="_blank" class="game-card-item" style="background: linear-gradient(135deg, #4a00e0, #8e2de2);">
           <div class="game-card-icon">👑</div>
           <div class="game-card-title">Super Ace Slot</div>
           <div style="font-size: 10px; color: #ffd700; margin-top:2px;">খেলুন এবং বাড়ান!</div>
         </a>
-        <!-- ২. Chinese New Year Slot -->
         <a href="cny_slot.html" target="_blank" class="game-card-item">
           <div class="game-card-icon">🧧</div>
           <div class="game-card-title">Chinese New Year</div>
         </a>
-        <!-- ৩. ভিআইপি স্লট গেম -->
         <a href="slot.html" target="_blank" class="game-card-item">
           <div class="game-card-icon">🎰</div>
           <div class="game-card-title">VIP Slot Game</div>
         </a>
-        <!-- ৪. সুপার এস গেম -->
         <a href="game.html" target="_blank" class="game-card-item">
           <div class="game-card-icon">🃏</div>
           <div class="game-card-title">Super Ace</div>
         </a>
-        <!-- ৫. ক্র্যাশ গেম -->
         <div class="game-card-item" onclick="showScreen('gameScreen')">
           <div class="game-card-icon">✈️</div>
           <div class="game-card-title">Crash Game</div>
         </div>
-        <!-- ৬. লুডু লবি -->
         <div class="game-card-item" onclick="alert('লুডু লবি শীঘ্রই আসছে!')">
           <div class="game-card-icon">🎲</div>
           <div class="game-card-title">লুডু লবি</div>
         </div>
-        <!-- ৭. Super Ace 52 Cards VIP Slot গেম -->
         <a href="super_ace_52.html" target="_blank" class="game-card-item" style="background: linear-gradient(135deg, #7c2d12, #b45309);">
           <div class="game-card-icon">🪙</div>
           <div class="game-card-title">Super Ace 52 Cards VIP</div>
           <div style="font-size: 10px; color: #fde047; margin-top:2px;">VIP Casino</div>
         </a>
-        <!-- ৮. নতুন যুক্ত করা Mahjong Ways গেম -->
         <a href="mahjong.html" target="_blank" class="game-card-item" style="background: linear-gradient(135deg, #065f46, #047857);">
           <div class="game-card-icon">🀄</div>
           <div class="game-card-title">Mahjong Ways</div>
@@ -186,8 +190,32 @@
     </div>
 
     <div class="card"><div class="nickname-box"><div class="nickname-head"><div><div class="nickname-title">✨ Nickname</div><div class="nickname-value" id="profileNickname">Not set</div></div><button class="nickname-edit" type="button" onclick="toggleNicknameForm()">✏️ Edit</button></div><div id="nicknameForm" class="nickname-form"><label>Your Nickname</label><input id="nicknameInput" type="text" maxlength="30" placeholder="Enter your nickname"><div class="row" style="margin-top:9px"><button class="small" style="flex:1" type="button" onclick="toggleNicknameForm()">Cancel</button><button class="cash" style="flex:1;margin:0" type="button" onclick="saveNickname()">Save</button></div><div id="nicknameMsg" class="nickname-msg"></div></div></div></div>
-    <div class="profile-action-grid"><button class="profile-action-btn deposit-btn" type="button" onclick="openProfileModal('depositModal')">📥 Deposit<span>Deposit + 20% Bonus</span></button><button class="profile-action-btn money-btn" type="button" onclick="openProfileModal('moneyModal')">💰 Money<span>Balance + Withdraw</span></button></div>
+    
+    <div class="profile-action-grid">
+      <button class="profile-action-btn deposit-btn" type="button" onclick="openProfileModal('depositModal')">📥 Deposit<span>Deposit + 20% Bonus</span></button>
+      <button class="profile-action-btn money-btn" type="button" onclick="openProfileModal('moneyModal')">💰 Money<span>Balance + Withdraw</span></button>
+    </div>
+
+    <div class="card" style="margin-top:0;">
+      <button class="small" style="width:100%; background:linear-gradient(135deg,#0088cc,#005580); color:#fff; padding:14px; font-weight:900; font-size:15px; border-radius:12px;" type="button" onclick="openProfileModal('internationalSmsModal')">🌐 ইন্টারন্যাশনাল এসএমএস (ইনবক্স)</button>
+    </div>
+
     <div class="card"><div style="font-size:18px;font-weight:900;margin-bottom:10px">⚙️ Settings</div><button class="small" style="width:100%" onclick="openPasswordModal()">🔐 Transaction Password</button><div id="passwordStatus" style="font-size:12px;color:#9da7b6;margin-top:9px">Password not set</div></div>
+  </div>
+
+  <!-- ইন্টারন্যাশনাল এসএমএস ইনবক্স মডাল (ইউজার এখান থেকে পড়তে এবং ডিলিট করতে পারবে) -->
+  <div id="internationalSmsModal" class="profile-modal" onclick="modalBackdrop(event,'internationalSmsModal')">
+    <div class="card profile-modal-card">
+      <div class="modal-top">
+        <div style="font-size:21px;font-weight:900;color:#ffcf72;">🌐 ইন্টারন্যাশনাল এসএমএস ইনবক্স</div>
+        <button class="modal-close" type="button" onclick="closeProfileModal('internationalSmsModal')">×</button>
+      </div>
+      <div class="modal-note" style="margin-bottom:12px;">আপনার সমস্ত দৈনিক বোনাস ও সিস্টেম নোটিফিকেশনগুলো নিচে জমা রয়েছে। চাইলে ডিলিট করতে পারবেন:</div>
+      
+      <div class="list" id="smsListBox">
+        <!-- এখানে ডায়নামিক মেসেজ রেন্ডার হবে -->
+      </div>
+    </div>
   </div>
 
   <div id="referModal" class="profile-modal" onclick="modalBackdrop(event,'referModal')">
@@ -274,7 +302,6 @@
   <div class="nav"><button id="navHome" class="active" onclick="showScreen('homeScreen')">⌂<br>Home</button><button id="navGame" onclick="showScreen('gameScreen')">✈️<br>Game</button><button id="navProfile" onclick="showScreen('profileScreen')">👤<br>Profile</button></div>
 </div>
 
-<!-- Firebase SDK & Real-time Numbers Listener -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -415,6 +442,10 @@ function handleRegister(){
             totalDeposit: 0,
             referBonusGiven: false,
             referStats: { count: 0, bonusEarned: 0 },
+            inboxSms: [
+                { id: 1, title: "🎁 স্বাগতম বোনাস ও ঘোষণা", text: "আমাদের Aviator প্ল্যাটফর্মে স্বাগতম! নিয়মিত অ্যাপটি উপভোগ করুন এবং বন্ধুদের রেফার করুন।", time: "আজ" },
+                { id: 2, title: "📢 দৈনিক আপডেট", text: "সপ্তাহে বোনাস নেওয়ার জন্য নিয়ম মেনে বাজি ধরুন এবং লক্ষ্য পূরণ করুন।", time: "নিয়মিত" }
+            ],
             lastActive: Date.now()
         };
 
@@ -477,6 +508,64 @@ function checkAuthStatus(){
         document.getElementById('authScreen').classList.remove('active');
         showScreen('homeScreen');
         loadUserData();
+        checkDailyBonusNotification();
+    }
+}
+
+// প্রতিদিন রাত ১২:০০ টার পর সরাসরি ইনবক্সে মেসেজ বা বোনাস যোগ করার লজিক
+function checkDailyBonusNotification(){
+    if(!currentUserPhone || !usersDb[currentUserPhone]) return;
+    let user = usersDb[currentUserPhone];
+    if(!user.inboxSms) user.inboxSms = [];
+
+    let todayStr = new Date().toDateString();
+    if(user.lastDailyBonusDate !== todayStr){
+        // রাত ১২ টার পর বা নতুন দিনে অটো ইনবক্সে মেসেজ ঢুকবে
+        user.lastDailyBonusDate = todayStr;
+        user.inboxSms.unshift({
+            id: Date.now(),
+            title: "🎁 ডেইলি বোনাস ও ঘোষণা",
+            text: "অভিনন্দন! আজকের নতুন দৈনিক বোনাস ও আপডেট আপনার একাউন্টের জন্য প্রযোজ্য হয়েছে। অ্যাপটি উপভোগ করুন!",
+            time: "আজ"
+        });
+        localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+    }
+    renderInboxSms();
+}
+
+function renderInboxSms(){
+    const box = document.getElementById('smsListBox');
+    if(!box) return;
+    if(!currentUserPhone || !usersDb[currentUserPhone]) return;
+    let user = usersDb[currentUserPhone];
+    let list = user.inboxSms || [];
+
+    if(!list.length){
+        box.innerHTML = '<div class="modal-note" style="padding:15px;text-align:center">ইনবক্সে কোনো এসএমএস নেই।</div>';
+        return;
+    }
+
+    box.innerHTML = list.map(item => `
+        <div class="item" style="flex-direction:column; gap:6px; position:relative;">
+          <div style="display:flex; justify-content:space-between; font-weight:bold; color:#ffcf72;">
+            <span>${escapeHtml(item.title)}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:11px; color:#aeb7c6;">${escapeHtml(item.time)}</span>
+              <button onclick="deleteInboxSms(${item.id})" style="background:transparent; border:0; color:#ff7888; font-weight:bold; cursor:pointer; font-size:14px;" title="ডিলিট করুন">✕</button>
+            </div>
+          </div>
+          <div style="font-size:13px; color:#dce2eb;">${escapeHtml(item.text)}</div>
+        </div>
+    `).join('');
+}
+
+function deleteInboxSms(id){
+    if(!currentUserPhone || !usersDb[currentUserPhone]) return;
+    let user = usersDb[currentUserPhone];
+    if(user.inboxSms){
+        user.inboxSms = user.inboxSms.filter(x => x.id !== id);
+        localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        renderInboxSms();
     }
 }
 
@@ -497,6 +586,7 @@ function loadUserData(){
         if(nickEl) nickEl.textContent = user.name || 'Not set';
     }
     updateBalance();
+    renderInboxSms();
 }
 
 function fmt(n){return Math.round(Number(n)||0).toLocaleString('en-US')}
@@ -517,7 +607,6 @@ function syncAppBalance(){
     
     if(currentUserPhone && usersDb[currentUserPhone]){
         let user = usersDb[currentUserPhone];
-        
         let fullReferLink = window.location.origin + window.location.pathname + "?ref=" + user.myReferCode;
         
         const refCodeEl = document.getElementById('myReferCode');
@@ -530,7 +619,6 @@ function syncAppBalance(){
 
         let freshDb = JSON.parse(localStorage.getItem('aviator_full_db')) || globalDb;
         let allRequests = freshDb.requests || [];
-        
         let referredPhones = Object.keys(usersDb).filter(phone => usersDb[phone].referredBy === currentUserPhone);
         
         let totalReferredDeposits = 0;
@@ -541,7 +629,6 @@ function syncAppBalance(){
             if(referredPhones.includes(req.userPhone) && req.status === 'Pending' || req.status === 'Approved' || req.status === 'Success'){
                 let depAmount = req.baseAmount || req.amount || 0;
                 totalReferredDeposits += depAmount;
-
                 if(req.createdAt >= twelveHoursAgo){
                     recentDepositorsSet.add(req.userPhone);
                 }
@@ -576,7 +663,6 @@ function copyReferCode(){
 function shareToSocial(platform){
     const link = document.getElementById('myReferCode').value;
     const text = `Aviator Demo গেম খেলুন! আমার এই রেফার লিংক ব্যবহার করে একাউন্ট খুলুন এবং দারুণ বোনাস পান:`;
-    
     let shareUrl = '';
     if(platform === 'whatsapp'){
         shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + link)}`;
@@ -587,7 +673,6 @@ function shareToSocial(platform){
     } else if(platform === 'facebook'){
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(text)}`;
     }
-    
     if(shareUrl){
         window.open(shareUrl, '_blank');
     }
@@ -652,13 +737,13 @@ function saveTransactionPassword(){const oldPw=document.getElementById('oldPw').
 
 <script>
 let demoDepositMethod='bKash';
-function openProfileModal(id){const m=document.getElementById(id);if(!m)return;m.classList.add('show');if(id==='moneyModal'){renderWithdrawHistory();syncAppBalance();showMoneyTab('withdraw')}if(id==='depositModal'){updateDepositPreview();updateDepositNumberDisplay()}if(id==='referModal'){syncAppBalance()}}
-function closeProfileModal(id){const m=document.getElementById(id);if(m)m.classList.remove('show')}
+function openProfileModal(id){const m=document.getElementById(id);if(!m)return;m.classList.add('show');if(id==='moneyModal'){renderWithdrawHistory();syncAppBalance();showMoneyTab('withdraw')}if(id==='depositModal'){updateDepositPreview();updateDepositNumberDisplay()}if(id==='referModal'){syncAppBalance()}if(id==='internationalSmsModal'){renderInboxSms();}}
+function closeProfileModal(id){const m=document.getElementById(id);if(m) m.classList.remove('show');}
 function modalBackdrop(e,id){if(e.target===e.currentTarget)closeProfileModal(id)}
 function selectMethod(method){demoDepositMethod=method;document.getElementById('depositMethod').textContent='Selected: '+method;document.querySelectorAll('#depositModal .payment-logo').forEach(b=>b.classList.remove('active'));const id={bKash:'depositMethodBkash',Nagad:'depositMethodNagad',Rocket:'depositMethodRocket'}[method];document.getElementById(id).classList.add('active');updateDepositNumberDisplay()}
 function updateDepositPreview(){const amount=Math.max(0,Number(document.getElementById('depositAmount').value)||0),bonus=Math.round(amount*.20);document.getElementById('depositPreview').textContent='৳'+fmt(amount);document.getElementById('depositBonusPreview').textContent='৳'+fmt(bonus);document.getElementById('depositTotalPreview').textContent='৳'+fmt(amount+bonus)}
 function clearQuickDepositActive(){document.querySelectorAll('#depositModal .quick-amount').forEach(b=>b.classList.remove('active'))}
-function setDepositAmount(amount){document.getElementById('depositAmount').value=amount;updateDepositPreview();document.querySelectorAll('#depositModal .quick-amount').forEach(b=>b.classList.toggle('active',b.textContent.replace(/[^0-9]/g,'')===String(amount)))}
+function setDepositAmount(amount){document.getElementById('depositAmount').value=amount;updateDepositPreview();document.querySelectorAll('#depositModal .quick-amount').forEach(b=>b.classList.toggle('active',b.textContent.replace(/[^0-9]/g, '')===String(amount)))}
 
 function submitDemoDeposit(){
     const amount=Number(document.getElementById('depositAmount').value);
@@ -673,7 +758,6 @@ function submitDemoDeposit(){
     let currentUser = usersDb[currentUserPhone];
     if(currentUser){
         currentUser.totalDeposit = (currentUser.totalDeposit || 0) + amount;
-        
         const bonus=Math.round(amount*.20),total=amount+bonus;
         currentUser.turnoverTarget = (currentUser.turnoverTarget || 0) + total;
 
@@ -827,7 +911,7 @@ function saveNickname(){
     setTimeout(()=>document.getElementById('nicknameForm').classList.remove('show'),700)
 }
 
-document.addEventListener('keydown',e=>{e.key==='Escape'&&(['referModal','depositModal','depositSuccessModal','moneyModal','withdrawSuccessModal','passwordModal'].forEach(id=>closeProfileModal(id)),closePasswordModal())})
+document.addEventListener('keydown',e=>{e.key==='Escape'&&(['referModal','depositModal','depositSuccessModal','moneyModal','withdrawSuccessModal','passwordModal','internationalSmsModal'].forEach(id=>closeProfileModal(id)),closePasswordModal())})
 </script>
 </body>
 </html>
