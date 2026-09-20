@@ -382,4 +382,140 @@
 
         function startSpin() {
             if (isSpinning) return;
-            if (balanc
+            if (balance < currentBet) {
+                showStatus("Insufficient Balance! Game Over.");
+                return;
+            }
+
+            isSpinning = true;
+            balance -= currentBet;
+            totalWin = 0.00;
+            currentComboLevel = 0;
+
+            updateUI();
+            updateMultiplierDisplay();
+            hideWinBanner();
+            showStatus("Dealing 52 cards sequentially...");
+            playSound('spin');
+
+            document.getElementById('spinBtn').disabled = true;
+
+            gridData = [];
+            for (let r = 0; r < 4; r++) {
+                let row = [];
+                for (let c = 0; c < 4; c++) {
+                    row.push(getRandomCard());
+                }
+                gridData.push(row);
+            }
+
+            renderCardsColumnByColumn(() => {
+                processCascades();
+            });
+        }
+
+        function processCascades() {
+            let counts = {};
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const group = gridData[r][c].group;
+                    if (!counts[group]) counts[group] = [];
+                    counts[group].push({ r, c });
+                }
+            }
+
+            let matchedPositions = [];
+            let spinWin = 0;
+
+            for (let group in counts) {
+                if (group !== 'SCATTER' && counts[group].length >= 4) {
+                    let multiplierVal = 0.1;
+                    spinWin += currentBet * multiplierVal;
+                    counts[group].forEach(pos => matchedPositions.push(pos));
+                }
+            }
+
+            if (matchedPositions.length > 0) {
+                matchedPositions.forEach(pos => {
+                    const cell = document.getElementById(`cell-${pos.r}-${pos.c}`);
+                    if (cell) cell.classList.add('card-matched');
+                });
+
+                const comboMults = [1, 1.05, 1.1, 1.15];
+                const activeMultiplier = comboMults[Math.min(currentComboLevel, comboMults.length - 1)];
+                let evaluatedWin = spinWin * activeMultiplier;
+
+                totalWin += evaluatedWin;
+                balance += evaluatedWin;
+
+                updateMultiplierDisplay();
+                showWinBanner(evaluatedWin);
+                playSound('win');
+                showStatus(`Matched! Win: +${evaluatedWin.toFixed(2)} coins!`);
+                updateUI();
+
+                if (currentComboLevel < 3) currentComboLevel++;
+
+                setTimeout(() => {
+                    hideWinBanner();
+                    matchedPositions.forEach(pos => {
+                        gridData[pos.r][pos.c] = getRandomCard();
+                    });
+                    renderCardsColumnByColumn(() => {
+                        processCascades();
+                    });
+                }, 1100);
+
+            } else {
+                endSpinRound();
+            }
+        }
+
+        function endSpinRound() {
+            isSpinning = false;
+            document.getElementById('spinBtn').disabled = false;
+            if (totalWin > 0) {
+                showStatus(`Total Win: ${totalWin.toFixed(2)} coins!`);
+            } else {
+                showStatus("No match! Try again.");
+            }
+        }
+
+        function updateMultiplierDisplay() {
+            const mults = ['mult-1', 'mult-2', 'mult-3', 'mult-5'];
+            mults.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                if (idx === currentComboLevel) {
+                    el.classList.add('multiplier-active');
+                } else {
+                    el.classList.remove('multiplier-active');
+                }
+            });
+        }
+
+        function showWinBanner(amount) {
+            const banner = document.getElementById('winBanner');
+            const text = document.getElementById('winAmountText');
+            text.innerText = `+${amount.toFixed(2)}`;
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+        }
+
+        function hideWinBanner() {
+            const banner = document.getElementById('winBanner');
+            banner.classList.add('hidden');
+            banner.classList.remove('flex');
+        }
+
+        function showStatus(msg) {
+            document.getElementById('gameStatus').innerText = msg;
+        }
+
+        window.onload = function() {
+            runLoadingScreen(); // গেম ওপেন হলেই লোডিং শুরু হবে
+            initGrid();
+            updateUI();
+        };
+    </script>
+</body>
+</html>
