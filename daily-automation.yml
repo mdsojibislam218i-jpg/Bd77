@@ -1,0 +1,27 @@
+name: Daily Loss Bonus Automation
+
+on:
+  schedule:
+  # প্রতিদিন রাত ১২:০০ টায় রান করার জন্য (UTC সময় অনুযায়ী আপনার লোকাল টাইম অ্যাড করতে পারেন)
+    - cron: '0 18 * * *' 
+  workflow_dispatch: # ম্যানুয়ালি টেস্ট করার জন্য বাটন পাওয়ার জন্য
+
+jobs:
+  run-bonus-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Loss Bonus Script
+        run: node your-script-file.js # আপনার মূল জাভাস্ক্রিপ্ট ফাইলের নাম এখানে দিতে হবে
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }} # সিক্রেট কি থাকলে এভাবে দিতে পারেন
