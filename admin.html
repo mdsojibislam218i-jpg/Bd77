@@ -9,7 +9,8 @@
 .app{width:100%;max-width:520px;margin:auto;min-height:100vh;background:#11151d;box-shadow:0 0 40px rgba(0,0,0,.45);padding:15px}
 .card{background:#191f29;border:1px solid #2a303b;border-radius:14px;padding:16px;margin-bottom:12px}
 label{display:block;color:#9da7b6;font-size:12px;margin-bottom:6px}
-input{width:100%;background:#0e1218;border:1px solid #303846;color:#fff;padding:12px;border-radius:8px;font-size:16px;outline:none;margin-bottom:12px}
+input,textarea{width:100%;background:#0e1218;border:1px solid #303846;color:#fff;padding:12px;border-radius:8px;font-size:16px;outline:none;margin-bottom:12px}
+textarea{resize:vertical;min-height:80px}
 button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cursor:pointer;width:100%}
 .cash{background:#20b56b;color:#fff}
 .admin-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
@@ -21,9 +22,11 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 .modal-note{font-size:11px;color:#7f8999;line-height:1.5}
 .screen{display:none}
 .screen.active{display:block}
+.stat-box{background:#11161e;border:1px solid #2a303b;border-radius:10px;padding:12px;text-align:center;margin-bottom:12px}
+.stat-value{font-size:24px;font-weight:900;color:#20b56b;margin-top:4px}
 </style>
 
-<!-- Firebase SDKs (Modular CDN) -->
+<!-- Firebase SDKs & Config (Modular CDN) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -35,8 +38,8 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
     projectId: "uk77-56f6d",
     storageBucket: "uk77-56f6d.firebasestorage.app",
     messagingSenderId: "1062783431056",
-    appId: "1:1062783431056:web:601df05c01a12e18998315",
-    measurementId: "G-TV874HDF4E"
+    appId: "1:1062783431056:web:c44fd51195cf4061998315",
+    measurementId: "G-C0ST13Q8PJ"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -88,14 +91,71 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       document.getElementById('adminLoginScreen').classList.remove('active');
       document.getElementById('adminDashboardScreen').classList.add('active');
       
-      const snapshot = await get(child(ref(db), 'settings/numbers'));
-      if(snapshot.exists()){
-          const nums = snapshot.val();
+      // মোট ইউজার সংখ্যা কাউন্ট করা
+      const usersSnap = await get(child(ref(db), 'users'));
+      if(usersSnap.exists()){
+          const usersData = usersSnap.val();
+          const totalUsersCount = Object.keys(usersData).length;
+          document.getElementById('totalUsersCount').textContent = totalUsersCount;
+      } else {
+          document.getElementById('totalUsersCount').textContent = '0';
+      }
+
+      // পেমেন্ট নম্বর লোড
+      const numSnap = await get(child(ref(db), 'settings/numbers'));
+      if(numSnap.exists()){
+          const nums = numSnap.val();
           document.getElementById('adminBkash').value = nums.bKash || '';
           document.getElementById('adminNagad').value = nums.Nagad || '';
           document.getElementById('adminRocket').value = nums.Rocket || '';
       }
+
+      // অফিশিয়াল নিউজ বা নোটিশ লোড
+      const noticeSnap = await get(child(ref(db), 'settings/officialNotice'));
+      if(noticeSnap.exists()){
+          document.getElementById('adminNoticeText').value = noticeSnap.val() || '';
+      }
+
       fetchRequests();
+  }
+
+  // নির্দিষ্ট ইউজারের অ্যাকাউন্টে টার্নওভার বা ব্যালেন্স যোগ করার ফাংশন
+  window.giveUserTurnover = async function() {
+      const phone = document.getElementById('targetUserPhone').value.trim();
+      const amount = Number(document.getElementById('targetUserAmount').value);
+      const msg = document.getElementById('turnoverMsg');
+
+      if(!phone || !amount){
+          msg.style.color = '#ff7888';
+          msg.textContent = 'দয়া করে সঠিক মোবাইল নম্বর এবং টাকার পরিমাণ লিখুন!';
+          return;
+      }
+
+      const userRef = ref(db, 'users/' + phone);
+      const userSnap = await get(userRef);
+
+      if(!userSnap.exists()){
+          msg.style.color = '#ff7888';
+          msg.textContent = 'এই নম্বਰের কোনো ইউজার ডাটাবেজে পাওয়া যায়নি!';
+          return;
+      }
+
+      let userData = userSnap.val();
+      let currentBal = userData.balance || 0;
+      let newBalance = currentBal + amount;
+
+      await update(userRef, { balance: newBalance });
+      msg.style.color = '#7ed6a7';
+      msg.textContent = `সফলভাবে ${phone} নম্বরের অ্যাকাউন্টে ৳${amount} টার্নওভার/ব্যালেন্স যোগ করা হয়েছে!`;
+      document.getElementById('targetUserPhone').value = '';
+      document.getElementById('targetUserAmount').value = '';
+  }
+
+  window.saveOfficialNotice = async function() {
+      const noticeText = document.getElementById('adminNoticeText').value.trim();
+      await set(ref(db, 'settings/officialNotice'), noticeText);
+      document.getElementById('adminNoticeMsg').style.color = '#7ed6a7';
+      document.getElementById('adminNoticeMsg').textContent = 'অফিশিয়াল নিউজ সফলভাবে আপডেট হয়েছে!';
   }
 
   async function fetchRequests() {
@@ -111,13 +171,13 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
               html += `
                   <tr>
                       <td>${r.userPhone}</td>
-                      <td>${r.method}</td>
+                      <td>${r.method || 'Bkash/Nagad'}</td>
                       <td>৳${Math.round(r.amount||0)}</td>
                       <td>${r.trx}</td>
                       <td>
                           ${r.status === 'Pending' ? `
-                              <button class="admin-btn approve-btn" onclick="handleDeposit('${key}', 'Accept')">Accept</button>
-                              <button class="admin-btn reject-btn" onclick="handleDeposit('${key}', 'Reject')">Reject</button>
+                              <button class="admin-btn approve-btn" onclick="handleDeposit('${key}', 'Accept', '${r.userPhone}',${r.amount})">Accept</button>
+                              <button class="admin-btn reject-btn" onclick="handleDeposit('${key}', 'Reject', '${r.userPhone}',${r.amount})">Reject</button>
                           ` : `<strong>${r.status}</strong>`}
                       </td>
                   </tr>
@@ -142,8 +202,8 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
                       <td>৳${Math.round(w.amount||0)}</td>
                       <td>
                           ${w.status === 'Pending' ? `
-                              <button class="admin-btn approve-btn" onclick="handleWithdraw('${key}', 'Accept')">Accept</button>
-                              <button class="admin-btn reject-btn" onclick="handleWithdraw('${key}', 'Reject')">Reject</button>
+                              <button class="admin-btn approve-btn" onclick="handleWithdraw('${key}', 'Accept', '${w.userPhone}',${w.amount})">Accept</button>
+                              <button class="admin-btn reject-btn" onclick="handleWithdraw('${key}', 'Reject', '${w.userPhone}',${w.amount})">Reject & Refund</button>
                           ` : `<strong>${w.status}</strong>`}
                       </td>
                   </tr>
@@ -161,6 +221,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       const Rocket = document.getElementById('adminRocket').value.trim();
 
       await set(ref(db, 'settings/numbers'), { bKash, Nagad, Rocket });
+      document.getElementById('adminNumMsg').style.color = '#7ed6a7';
       document.getElementById('adminNumMsg').textContent = 'নম্বর সফলভাবে ফায়ারবেসে আপডেট হয়েছে!';
   }
 
@@ -187,56 +248,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       msg.textContent = 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!';
   }
 
-  // ফায়ারবেসে সবসময় index.html নামে ফাইল সেভ করার ফাংশন
-  window.uploadLargeFileToFirebase = async function() {
-      const fileInput = document.getElementById('adminLargeFile');
-      const msgDiv = document.getElementById('adminFileMsg');
-      const progressWrapper = document.getElementById('fileProgressBarWrapper');
-      const progressBar = document.getElementById('fileProgressBar');
-
-      if(fileInput.files.length === 0) {
-          msgDiv.style.color = '#ff7888';
-          msgDiv.textContent = 'প্রথমে একটি .html ফাইল সিলেক্ট করুন!';
-          return;
-      }
-
-      let file = fileInput.files[0];
-      progressWrapper.style.display = 'block';
-      msgDiv.style.color = '#fff';
-      msgDiv.textContent = 'আপলোড শুরু হচ্ছে...';
-
-      let reader = new FileReader();
-      
-      reader.onprogress = function(e) {
-          if (e.lengthComputable) {
-              let percentLoaded = Math.round((e.loaded / e.total) * 100);
-              progressBar.style.width = percentLoaded + '%';
-              progressBar.textContent = percentLoaded + '%';
-          }
-      };
-
-      reader.onload = async function(e) {
-          try {
-              let fileContent = e.target.result;
-              
-              await set(ref(db, 'systemData/latestUpload'), {
-                  fileName: 'index.html',
-                  content: fileContent,
-                  uploadedAt: new Date().toISOString()
-              });
-
-              msgDiv.style.color = '#7ed6a7';
-              msgDiv.textContent = 'index.html সফলভাবে ফায়ারবেসে আপডেট হয়েছে!';
-          } catch (err) {
-              msgDiv.style.color = '#ff7888';
-              msgDiv.textContent = 'আপলোড ব্যর্থ: ' + err.message;
-          }
-      };
-
-      reader.readAsText(file);
-  }
-
-  window.handleDeposit = async function(reqKey, action) {
+  window.handleDeposit = async function(reqKey, action, phone, amount) {
       const reqRef = ref(db, 'requests/' + reqKey);
       const snap = await get(reqRef);
       if(!snap.exists()) return;
@@ -244,6 +256,13 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       if(req.status !== 'Pending') return;
 
       if(action === 'Accept'){
+          const userRef = ref(db, 'users/' + phone);
+          const userSnap = await get(userRef);
+          let currentBal = 0;
+          if(userSnap.exists()){
+              currentBal = userSnap.val().balance || 0;
+          }
+          await update(userRef, { balance: currentBal + amount });
           await update(reqRef, { status: 'Approved' });
           alert('ডিপোজিট সফলভাবে Accept করা হয়েছে!');
       } else {
@@ -253,7 +272,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       fetchRequests();
   }
 
-  window.handleWithdraw = async function(wKey, action) {
+  window.handleWithdraw = async function(wKey, action, phone, amount) {
       const wRef = ref(db, 'withdrawRequests/' + wKey);
       const snap = await get(wRef);
       if(!snap.exists()) return;
@@ -264,8 +283,15 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           await update(wRef, { status: 'Approved' });
           alert('উইথড্র রিকুয়েস্ট সফলভাবে Accept করা হয়েছে!');
       } else {
-          await update(wRef, { status: 'Rejected' });
-          alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে!');
+          const userRef = ref(db, 'users/' + phone);
+          const userSnap = await get(userRef);
+          let currentBal = 0;
+          if(userSnap.exists()){
+              currentBal = userSnap.val().balance || 0;
+          }
+          await update(userRef, { balance: currentBal + amount });
+          await update(wRef, { status: 'Rejected & Refunded' });
+          alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা রিফান্ড করা হয়েছে!');
       }
       fetchRequests();
   }
@@ -295,6 +321,32 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <button onclick="adminLogout()" style="width:auto;background:#252b35;color:#ff7888;padding:6px 12px;font-size:11px;border-radius:8px">লগআউট</button>
     </div>
 
+    <!-- মোট ইউজার কাউন্ট বক্স -->
+    <div class="stat-box">
+      <div style="font-size:13px;color:#9da7b6">মোট রেজিস্টার্ড ইউজার</div>
+      <div class="stat-value" id="totalUsersCount">0</div>
+    </div>
+
+    <!-- নির্দিষ্ট ইউজারে টার্নওভার/ব্যালেন্স অ্যাড করার সেকশন -->
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">🎯 ইউজার টার্নওভার / ব্যালেন্স অ্যাড</div>
+      <label>ইউজারের মোবাইল নম্বর</label>
+      <input id="targetUserPhone" type="tel" placeholder="01XXXXXXXXX">
+      <label>টাকার পরিমাণ (টার্নওভার/বোনাস)</label>
+      <input id="targetUserAmount" type="number" placeholder="পরিমাণ লিখুন">
+      <button class="cash" type="button" onclick="giveUserTurnover()">টাকা অ্যাড করুন</button>
+      <div id="turnoverMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
+    <!-- অফিশিয়াল নিউজ ও নোটিশ বোর্ড -->
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📢 অফিশিয়াল নিউজ ও নোটিশ বোর্ড</div>
+      <label>বিজ্ঞাপন বা নোটিশের টেক্সট লিখুন</label>
+      <textarea id="adminNoticeText" placeholder="এখানে অ্যাপের অফিশিয়াল নিউজ বা নোটিশ লিখুন..."></textarea>
+      <button class="cash" type="button" onclick="saveOfficialNotice()">নোটিশ পাবলিশ করুন</button>
+      <div id="adminNoticeMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
     <div class="card">
       <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">⚙️ পেমেন্ট নম্বর সেটিংস</div>
       <label>bKash Number</label>
@@ -305,19 +357,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <input id="adminRocket" type="text">
       <button class="cash" type="button" onclick="saveAdminNumbers()">Save Numbers</button>
       <div id="adminNumMsg" class="modal-note" style="margin-top:5px"></div>
-    </div>
-
-    <div class="card">
-      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📁 গেম ফাইল আপডেট সিস্টেম (index.html)</div>
-      <label>গেমের HTML ফাইল সিলেক্ট করুন (index.html)</label>
-      <input id="adminLargeFile" type="file" accept=".html" style="padding: 8px;">
-      
-      <div style="background:#0e1218;border-radius:8px;overflow:hidden;margin-bottom:12px;height:18px;display:none;" id="fileProgressBarWrapper">
-        <div id="fileProgressBar" style="width:0%;height:100%;background:#20b56b;text-align:center;font-size:11px;font-weight:bold;line-height:18px;">0%</div>
-      </div>
-
-      <button class="cash" type="button" onclick="uploadLargeFileToFirebase()">ফায়ারবেসে আপডেট করুন</button>
-      <div id="adminFileMsg" class="modal-note" style="margin-top:5px"></div>
     </div>
 
     <div class="card">
@@ -344,7 +383,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">📤 উইথড্র রিকুয়েস্ট লিস্ট</div>
       <div style="overflow-x:auto">
         <table class="admin-table">
-          <thead><tr><th>User</th><th>Number</th><th>Amount</th><th>Action</th></tr></thead>
+          <thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Action</th></tr></thead>
           <tbody id="adminWithdrawTableBody"><tr><td colspan="4" style="text-align:center">Loading...</td></tr></tbody>
         </table>
       </div>
