@@ -365,14 +365,12 @@
       }
   });
 
-  // রিয়েল-টাইম অ্যাডমিন অফিশিয়াল বিজ্ঞাপন/নোটিশ সিঙ্ক
   onValue(ref(db, 'settings/vipAnnouncement'), (snapshot) => {
       if (snapshot.exists()) {
           const annText = snapshot.val();
           const tickerEl = document.getElementById('vipTickerText');
           if(tickerEl) tickerEl.textContent = annText;
           
-          // ইনবক্সেও নোটিফিকেশন যুক্ত করা
           if(window.currentUserPhone && window.usersDb && window.usersDb[window.currentUserPhone]){
               let user = window.usersDb[window.currentUserPhone];
               if(!user.inboxSms) user.inboxSms = [];
