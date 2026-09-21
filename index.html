@@ -98,8 +98,6 @@
         <span id="vipTickerText" class="vip-ticker-text">অ্যাডমিন প্যানেল থেকে ভিআইপি নোটিশ লোড হচ্ছে... নিয়মিত খেলুন এবং বোনাস জিতুন!</span>
       </div>
     </div>
-
-    <!-- হাইড করা হয়েছে (AVIATOR Games Virtual crash-game demo) এবং BD77Q নাম সেট করা হয়েছে -->
     
     <div class="card" style="background:linear-gradient(135deg,#1e2636,#111722);border:1px solid #ffcf72">
       <div style="display:flex;align-items:center;justify-content:space-between">
@@ -373,25 +371,64 @@
           const annText = snapshot.val();
           const tickerEl = document.getElementById('vipTickerText');
           if(tickerEl) tickerEl.textContent = annText;
-          
-          // ইনবক্সেও নোটিফিকেশন যুক্ত করা
-          if(window.currentUserPhone && window.usersDb && window.usersDb[window.currentUserPhone]){
-              let user = window.usersDb[window.currentUserPhone];
-              if(!user.inboxSms) user.inboxSms = [];
-              let lastMsg = user.inboxSms[0];
-              if(!lastMsg || lastMsg.text !== annText){
-                  user.inboxSms.unshift({
-                      id: Date.now(),
-                      title: "👑 VIP অফিশিয়াল নোটিশ",
-                      text: annText,
-                      time: "এখন"
-                  });
-                  localStorage.setItem('aviator_users_db', JSON.stringify(window.usersDb));
-                  if(typeof window.renderInboxSms === 'function') window.renderInboxSms();
-              }
-          }
       }
   });
+
+  // রিয়েল-টাইম উইথড্র হিস্ট্রি এবং স্ট্যাটাস সিঙ্ক (Success / Reject রিয়েল-টাইম দেখানোর জন্য)
+  window.initRealtimeWithdrawSync = function(phone) {
+      if(!phone) return;
+      const withdrawRef = ref(db, 'withdrawRequests');
+      onValue(withdrawRef, (snapshot) => {
+          const el = document.getElementById('withdrawHistoryList');
+          if(!el) return;
+
+          if(!snapshot.exists()){
+              el.innerHTML = '<div class="modal-note" style="padding:15px;text-align:center">এখনও কোনো withdraw request নেই।</div>';
+              return;
+          }
+
+          let myWithdraws = [];
+          snapshot.forEach((childSnapshot) => {
+              let req = childSnapshot.val();
+              if(req.userPhone === phone){
+                  myWithdraws.unshift(req);
+              }
+          });
+
+          if(!myWithdraws.length){
+              el.innerHTML = '<div class="modal-note" style="padding:15px;text-align:center">এখনও কোনো withdraw request নেই।</div>';
+              return;
+          }
+
+          el.innerHTML = myWithdraws.map(x => {
+              const minutes = Math.max(0, Math.floor((Date.now() - x.createdAt) / 60000));
+              const ago = minutes < 60 ? minutes + ' min ago' : Math.floor(minutes / 60) + ' hr ago';
+              
+              let statusColor = '#ffd166'; // Pending
+              let statusText = x.status || 'Pending';
+              
+              if(x.status === 'Approved' || x.status === 'Success'){
+                  statusColor = '#20b56b';
+                  statusText = 'সফল (Success)';
+              } else if(x.status === 'Rejected'){
+                  statusColor = '#ff7888';
+                  statusText = 'রিজেক্ট (Rejected)';
+              }
+
+              return `
+                  <div class="history-item" style="border-left: 4px solid ${statusColor};">
+                      <div class="history-item-top">
+                          <strong>৳${fmt(x.amount)}</strong>
+                          <strong style="color: ${statusColor}">${statusText}</strong>
+                      </div>
+                      <div class="modal-note" style="margin-top:5px">
+                          ${x.method} • ${ago}<br>Account: ${escapeHtml(x.number)}
+                      </div>
+                  </div>
+              `;
+          }).join('');
+      });
+  }
 
   window.initLiveUserSync = function(phone) {
       if(!phone) return;
@@ -403,10 +440,13 @@
               balance = liveBalance;
               if(usersDb[phone]) {
                   usersDb[phone].balance = liveBalance;
+                  usersDb[phone].inboxSms = userData.inboxSms || [];
               }
               updateBalance();
+              renderInboxSms();
           }
       });
+      window.initRealtimeWithdrawSync(phone);
   }
 </script>
 
@@ -611,6 +651,9 @@ function checkDailyBonusNotification(){
             time: "আজ"
         });
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        if(window.fbDb && window.fbRef && window.fbUpdate){
+            window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { inboxSms: user.inboxSms });
+        }
     }
     renderInboxSms();
 }
@@ -648,6 +691,9 @@ function deleteInboxSms(id){
     if(user.inboxSms){
         user.inboxSms = user.inboxSms.filter(x => x.id !== id);
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        if(window.fbDb && window.fbRef && window.fbUpdate){
+            window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { inboxSms: user.inboxSms });
+        }
         renderInboxSms();
     }
 }
@@ -1035,6 +1081,7 @@ function showMoneyTab(tab){
 }
 
 function renderWithdrawHistory(){
+    // ব্যাকআপ লোকাল ফাংশন, যা রিয়েল-টাইম লিসেনার না থাকলে কাজ করবে
     let freshDb = JSON.parse(localStorage.getItem('aviator_full_db')) || globalDb;
     let myWithdraws = (freshDb.withdrawRequests || []).filter(x => x.userPhone === currentUserPhone);
     const el=document.getElementById('withdrawHistoryList');
@@ -1043,7 +1090,18 @@ function renderWithdrawHistory(){
     el.innerHTML=myWithdraws.map(x=>{
         const minutes=Math.max(0,Math.floor((Date.now()-x.createdAt)/60000));
         const ago=minutes<60?minutes+' min ago':Math.floor(minutes/60)+' hr ago';
-        return `<div class="history-item"><div class="history-item-top"><strong>৳${fmt(x.amount)}</strong><strong class="pending">${x.status}</strong></div><div class="modal-note" style="margin-top:5px">${x.method} • ${ago}<br>Account: ${escapeHtml(x.number)}</div></div>`
+        
+        let statusColor = '#ffd166';
+        let statusText = x.status || 'Pending';
+        if(x.status === 'Approved' || x.status === 'Success'){
+            statusColor = '#20b56b';
+            statusText = 'সফল (Success)';
+        } else if(x.status === 'Rejected'){
+            statusColor = '#ff7888';
+            statusText = 'রিজেক্ট (Rejected)';
+        }
+
+        return `<div class="history-item" style="border-left: 4px solid ${statusColor};"><div class="history-item-top"><strong>৳${fmt(x.amount)}</strong><strong style="color: ${statusColor}">${statusText}</strong></div><div class="modal-note" style="margin-top:5px">${x.method} • ${ago}<br>Account: ${escapeHtml(x.number)}</div></div>`
     }).join('')
 }
 
@@ -1060,6 +1118,9 @@ function saveNickname(){
     if(currentUserPhone && usersDb[currentUserPhone]){
         usersDb[currentUserPhone].name = n;
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        if(window.fbDb && window.fbRef && window.fbUpdate){
+            window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { name: n });
+        }
     }
     document.getElementById('profileNickname').textContent=n;
     m.textContent='Nickname saved ✓';
