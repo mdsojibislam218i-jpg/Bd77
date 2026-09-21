@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BD77Q - Auth & Game</title>
+<title>BD77Q - Auth & Game & Helpline</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#080a0f;color:#fff;font-family:Arial,sans-serif}body{padding:0}.app{width:100%;max-width:520px;margin:auto;min-height:100vh;background:#11151d;box-shadow:0 0 40px rgba(0,0,0,.45);padding-bottom:74px}.screen{display:none}.screen.active{display:block}.header{height:62px;background:#171c26;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #292f3b}.logo{font-size:23px;font-weight:900}.logo span{font-size:27px}.balance{background:#242b37;padding:9px 12px;border-radius:20px;font-weight:900}.card{margin:12px;background:#191f29;border:1px solid #2a303b;border-radius:14px;padding:16px}.hero{padding:20px 16px;background:linear-gradient(135deg,#191f29,#10151d)}.stat{display:flex;justify-content:space-between;gap:12px;margin:10px 0;color:#aeb7c6}.stat strong{color:#fff;text-align:right}.row{display:flex;gap:8px}.field{flex:1;min-width:0}.field label,label{display:block;color:#9da7b6;font-size:12px;margin-bottom:6px}input{width:100%;background:#0e1218;border:1px solid #303846;color:#fff;padding:12px;border-radius:8px;font-size:16px;outline:none}input:focus{border-color:#6d7788}button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cursor:pointer}.bet{background:#2a303b;color:#fff;width:100%}.cash{background:#20b56b;color:#fff;width:100%;margin-top:8px}.cash:disabled{opacity:.35;cursor:not-allowed}.small{background:#252c37;color:#dce2eb}.note{font-size:11px;color:#7f8999;text-align:center;margin:12px;line-height:1.5}.game{margin:12px;border-radius:12px;overflow:hidden;background:#080b10;border:1px solid #272e39}.sky{height:410px;position:relative;overflow:hidden;background:linear-gradient(#101a2a,#0a0d13)}.mult{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:55px;font-weight:900;color:#fff;text-shadow:0 2px 12px #000;z-index:4}.status{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;z-index:5;color:#aeb7c6;font-size:13px}.grid{position:absolute;inset:0;opacity:.18;background-image:linear-gradient(#72809a 1px,transparent 1px),linear-gradient(90deg,#72809a 1px,transparent 1px);background-size:45px 45px;transform:skewY(-10deg) scale(1.4);transform-origin:bottom}.plane{position:absolute;left:12%;bottom:13%;font-size:48px;z-index:6;filter:drop-shadow(0 5px 8px #000)}.line{position:absolute;left:-20%;bottom:10%;width:150%;height:4px;background:#ff334f;transform:rotate(-16deg);transform-origin:left;box-shadow:0 0 15px #ff334f;z-index:3}.crashed .mult{color:#ff4961}.panel{padding:0 12px}.box{background:#191f29;border-radius:12px;padding:12px;margin-bottom:10px}.history{display:flex;gap:7px;overflow:hidden;margin-top:10px;padding:0 10px 10px}.pill{padding:6px 9px;border-radius:15px;background:#26303c;font-size:12px;color:#7ed6a7}.pill.hot{color:#ffcf72}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#151a23;border-top:1px solid #2a303b;display:grid;grid-template-columns:repeat(3,1fr);padding:7px 8px;z-index:200}.nav button{background:transparent;color:#8e98a8;padding:9px 4px;font-size:12px}.nav button.active{color:#fff;background:#222936}.list{display:grid;gap:8px}.item{background:#11161e;padding:12px;border-radius:10px;display:flex;justify-content:space-between}.nickname-box{background:#11161e;border:1px solid #2a303b;border-radius:10px;padding:12px}.nickname-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.nickname-title{font-size:18px;font-weight:900}.nickname-value{font-size:14px;color:#dce2eb;margin-top:4px}.nickname-edit{background:#252c37;color:#fff;padding:9px 12px}.nickname-form{display:none;margin-top:10px}.nickname-form.show{display:block}.nickname-msg{font-size:12px;color:#9da7b6;margin-top:8px;min-height:18px}.profile-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px}.profile-action-btn{border:0;border-radius:14px;padding:15px 10px;color:#fff;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.2)}.deposit-btn{background:linear-gradient(135deg,#00c853,#00a844)}.money-btn{background:linear-gradient(135deg,#ffb300,#f57c00)}.profile-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;align-items:center;justify-content:center;padding:14px;overflow:auto}.profile-modal.show{display:flex}.profile-modal-card{width:min(470px,100%);max-height:92vh;overflow:auto;margin:0}.modal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-close{background:#252b35;color:#fff;border-radius:9px;width:38px;height:38px;padding:0;font-size:22px}.payment-method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0 12px}.payment-logo{border:1px solid #303744;background:#11161e;border-radius:12px;padding:10px 5px;text-align:center;color:#fff;font-weight:900;transition:.15s}.payment-logo.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.08);transform:translateY(-1px)}.payment-logo .logo{display:inline-flex;align-items:center;justify-content:center;width:42px;height:38px;border-radius:10px;margin-bottom:5px;font-size:10px}.bkash-logo{background:#e2136e}.nagad-logo{background:#f58220}.rocket-logo{background:#6b2fa3}.quick-amounts{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0}.quick-amount{flex:1 1 calc(33.333% - 7px);min-width:72px;background:#202733;color:#fff;border:1px solid #303846;padding:9px 7px;font-size:13px}.quick-amount.active{border-color:#fff;background:#2d3542}.bonus-box{background:#10261b;border:1px solid #1f7a49;border-radius:12px;padding:11px;margin:10px 0}.bonus-title{font-size:14px;font-weight:900;margin-bottom:6px}.bonus-row{display:flex;justify-content:space-between;gap:8px;margin:5px 0;font-size:13px}.bonus-row strong{color:#7ed6a7}.demo-number{margin-top:10px;background:#11161e;border-radius:10px;padding:12px}.demo-number-value{font-size:18px;font-weight:900;margin-top:4px}.money-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}.money-tab{background:#202733;color:#aeb7c6}.money-tab.active{background:#fff;color:#111}.history-list{display:grid;gap:8px}.history-item{background:#11161e;border:1px solid #252c37;border-radius:10px;padding:11px}.history-item-top{display:flex;justify-content:space-between;gap:8px}.pending{color:#ffd166}.modal-note{font-size:11px;color:#7f8999;line-height:1.5}.success-box{background:#10261b;border:1px solid #1f7a49;border-radius:12px;padding:15px;text-align:center}.success-icon{font-size:42px}.success-title{font-size:20px;font-weight:900;margin:5px 0}.danger{color:#ff7888}.info{color:#8fd3ff}
 
-.auth-container{max-width:420px;margin:60px auto;padding:20px}.auth-card{background:#191f29;border:1px solid #2a303b;border-radius:16px;padding:24px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;background:#11161e;padding:4px;border-radius:10px}.auth-tab{background:transparent;color:#9da7b6;padding:10px;border-radius:8px;font-weight:bold;cursor:pointer}.auth-tab.active{background:#202733;color:#fff}
+.auth-container{max-width:420px;margin:40px auto;padding:20px}.auth-card{background:#191f29;border:1px solid #2a303b;border-radius:16px;padding:24px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;background:#11161e;padding:4px;border-radius:10px}.auth-tab{background:transparent;color:#9da7b6;padding:10px;border-radius:8px;font-weight:bold;cursor:pointer}.auth-tab.active{background:#202733;color:#fff}
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(8,10,15,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column}.loading-overlay.show{display:flex}.spinner{width:50px;height:50px;border:4px solid #303846;border-top-color:#20b56b;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:15px}@keyframes spin{to{transform:rotate(360deg)}}.loading-text{font-size:16px;font-weight:bold;color:#fff;letter-spacing:1px}
 
 .social-share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
@@ -23,7 +23,7 @@
 .game-card-icon{font-size:28px;margin-bottom:6px}
 .game-card-title{font-size:13px;font-weight:900}
 
-/* VIP Announcement Ticker & Modal Style */
+/* VIP Announcement Ticker */
 .vip-ticker-box{background:linear-gradient(90deg,#2b1d0c,#3b270e,#2b1d0c);border:1px solid #ffb300;border-radius:10px;padding:10px 14px;margin:12px;display:flex;align-items:center;gap:10px;box-shadow:0 0 15px rgba(255,179,0,0.2)}
 .vip-ticker-icon{font-size:20px;animation:pulseBadge 1.5s infinite}
 .vip-ticker-content{overflow:hidden;white-space:nowrap;flex:1;position:relative}
@@ -56,6 +56,17 @@
 .leaderboard-user-info p { margin: 2px 0 0; color: #aeb7c6; font-size: 11px; }
 .leaderboard-badge { background: #28a745; color: white; padding: 4px 8px; border-radius: 15px; font-weight: bold; font-size: 12px; }
 
+/* Helpline Icon & Widget Styles */
+.helpline-pill { display: inline-flex; align-items: center; gap: 6px; background: #222d3d; border: 1px solid #303e54; padding: 6px 12px; border-radius: 20px; cursor: pointer; color: #ffcf72; font-weight: 900; font-size: 12px; transition: 0.2s; }
+.helpline-pill:hover { background: #2d3b50; }
+.chat-msg-box { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding-right: 4px; }
+.chat-bubble { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; max-width: 85%; }
+.chat-bubble.support { background: #1e2636; color: #dce2eb; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #2a303b; }
+.chat-bubble.user { background: #20b56b; color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+.helpline-quick-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.helpline-q-btn { background: #252e3d; color: #ffcf72; border: 1px solid #323f54; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; text-align: left; }
+.helpline-q-btn:hover { background: #303e54; }
+
 @media(max-width:420px){.profile-action-btn{font-size:14px;padding:13px 7px}.sky{height:360px}.mult{font-size:46px}.row{gap:6px}}
 </style>
 </head>
@@ -68,12 +79,18 @@
 
 <div class="app">
   
+  <!-- AUTH SCREEN -->
   <div id="authScreen" class="screen active">
     <div class="auth-container">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:36px">👑</div>
-        <div style="font-size:24px;font-weight:900;margin-top:5px">BD77Q</div>
-        <div style="font-size:13px;color:#9da7b6">আপনার অ্যাকাউন্ট দিয়ে প্রবেশ করুন</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <div>
+          <div style="font-size:32px">👑</div>
+          <div style="font-size:22px;font-weight:900;margin-top:2px">BD77Q</div>
+        </div>
+        <!-- Helpline on Login Screen -->
+        <div class="helpline-pill" onclick="openHelpLineModal()">
+          🎧 <span>হেল্পলাইন</span>
+        </div>
       </div>
       
       <div class="auth-card">
@@ -113,8 +130,19 @@
     </div>
   </div>
 
+  <!-- HOME SCREEN -->
   <div id="homeScreen" class="screen">
-    <div class="header"><div class="logo"><span>👑</span> BD77Q</div><div style="display:flex;align-items:center;gap:10px"><div class="balance">💰 ৳ <span id="homeBalance">0</span></div><button onclick="handleLogout()" style="background:#252b35;color:#ff7888;padding:6px 10px;font-size:11px;border-radius:8px">লগআউট</button></div></div>
+    <div class="header">
+      <div class="logo"><span>👑</span> BD77Q</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <!-- Helpline Small Icon on Home Top Bar -->
+        <div class="helpline-pill" onclick="openHelpLineModal()" style="padding:5px 10px; font-size:11px;">
+          🎧 হেল্পলাইন
+        </div>
+        <div class="balance">💰 ৳ <span id="homeBalance">0</span></div>
+        <button onclick="handleLogout()" style="background:#252b35;color:#ff7888;padding:6px 10px;font-size:11px;border-radius:8px">লগআউট</button>
+      </div>
+    </div>
     
     <!-- VIP Announcement Ticker Bar -->
     <div class="vip-ticker-box">
@@ -195,6 +223,7 @@
     <div class="card"><div style="font-size:17px;font-weight:900;margin-bottom:10px">📊 Recent Crash</div><div id="homeHistory" class="list"><div class="item"><span>Round</span><strong>Waiting...</strong></div></div></div>
   </div>
 
+  <!-- GAME SCREEN -->
   <div id="gameScreen" class="screen">
     <div class="header">
       <div class="logo"><span>👑</span> BD77Q</div>
@@ -218,8 +247,19 @@
     </div>
   </div>
 
+  <!-- PROFILE SCREEN -->
   <div id="profileScreen" class="screen">
-    <div class="header"><div class="logo">👤 Profile</div><div class="balance">💰 ৳ <span id="profileBalance">0</span></div></div>
+    <div class="header">
+      <div class="logo">👤 Profile</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <!-- Helpline on Profile Screen Top Bar -->
+        <div class="helpline-pill" onclick="openHelpLineModal()" style="padding:5px 10px; font-size:11px;">
+          🎧 হেল্পলাইন
+        </div>
+        <div class="balance">💰 ৳ <span id="profileBalance">0</span></div>
+      </div>
+    </div>
+    
     <div class="card"><div class="stat"><span>Mobile Number</span><strong id="profilePhone">01XXXXXXXXX</strong></div><div class="stat"><span>Balance</span><strong>৳ <span id="profileBalance2">0</span></strong></div></div>
     
     <div class="card" style="background:#11161e;border:1px solid #2a303b;">
@@ -243,6 +283,42 @@
     <div class="card"><div style="font-size:18px;font-weight:900;margin-bottom:10px">⚙️ Settings</div><button class="small" style="width:100%" onclick="openPasswordModal()">🔐 Transaction Password</button><div id="passwordStatus" style="font-size:12px;color:#9da7b6;margin-top:9px">Password not set</div></div>
   </div>
 
+  <!-- HELPLINE LIVE CHAT MODAL -->
+  <div id="helpLineModal" class="profile-modal" onclick="modalBackdrop(event,'helpLineModal')">
+    <div class="card profile-modal-card">
+      <div class="modal-top">
+        <div style="font-size:19px;font-weight:900;color:#ffcf72;display:flex;align-items:center;gap:6px;">
+          🎧 BD77Q লাইভ হেল্পলাইন
+        </div>
+        <button class="modal-close" type="button" onclick="closeHelpLineModal()">×</button>
+      </div>
+      
+      <div class="modal-note" style="margin-bottom:10px;">আমাদের সাপোর্ট স্পেশালিস্ট সবসময় প্রস্তুত। আপনার যেকোনো সমস্যার সমাধান পেতে নিচে থেকে ক্যাটাগরি বেছে নিন অথবা মেসেজ লিখুন:</div>
+      
+      <!-- Quick Options -->
+      <div class="helpline-quick-btns">
+        <button class="helpline-q-btn" onclick="sendHelpQuery('ডিপোজিট সমস্যা')">📥 ডিপোজিট সমস্যা</button>
+        <button class="helpline-q-btn" onclick="sendHelpQuery('টাকা উইথড্র সমস্যা')">📤 উইথড্র সমস্যা</button>
+        <button class="helpline-q-btn" onclick="sendHelpQuery('টার্নওভার সমস্যা')">📊 টার্নওভার সমস্যা</button>
+        <button class="helpline-q-btn" onclick="sendHelpQuery('পাসওয়ার্ড রিসেট ও একাউন্ট')">🔐 পাসওয়ার্ড ও একাউন্ট</button>
+      </div>
+
+      <!-- Chat Messages Area -->
+      <div id="helpChatBox" class="chat-msg-box">
+        <div class="chat-bubble support">
+          আসসালামু আলাইকুম! BD77Q সাপোর্টে আপনাকে স্বাগতম। ডিপোজিট, উইথড্র, টার্নওভার বা পাসওয়ার্ড সংক্রান্ত যেকোনো সহায়তার জন্য বলুন। আমি কীভাবে সাহায্য করতে পারি?
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="row" style="margin-top:6px;">
+        <input id="helpUserInput" type="text" placeholder="আপনার সমস্যা এখানে বিস্তারিত লিখুন..." onkeydown="if(event.key==='Enter') sendCustomHelpMsg()">
+        <button class="cash" style="width:100px;margin-top:0;padding:0 10px;" type="button" onclick="sendCustomHelpMsg()">ارسال</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERNATIONAL SMS MODAL -->
   <div id="internationalSmsModal" class="profile-modal" onclick="modalBackdrop(event,'internationalSmsModal')">
     <div class="card profile-modal-card">
       <div class="modal-top">
@@ -302,12 +378,10 @@
       <div id="referRewardsSection" style="display:none">
         <div class="modal-note" style="margin-bottom:10px;">নির্দিষ্ট সংখ্যক সফল রেফার পূর্ণ হলে নিচে রিওয়ার্ড ক্লেইম করুন (no expiration):</div>
         
-        <div id="rewardsListContainer">
-          <!-- Dynamically rendered via JS -->
-        </div>
+        <div id="rewardsListContainer"></div>
       </div>
 
-      <!-- Top 3 Referrers Leaderboard Section (Placed at the very bottom inside Refer Modal) -->
+      <!-- Top 3 Referrers Leaderboard Section -->
       <div class="leaderboard-card" style="margin-top: 16px;">
         <div style="font-size:15px;font-weight:900;margin-bottom:8px">🏆 টপ রেফারার লিডারবোর্ড</div>
         <div id="topReferrersList">
@@ -380,9 +454,15 @@
 
   <div id="passwordModal" class="profile-modal" onclick="modalBackdrop(event,'passwordModal')"><div class="card profile-modal-card"><div class="modal-top"><div style="font-size:21px;font-weight:900">🔐 Transaction Password</div><button class="modal-close" onclick="closePasswordModal()">×</button></div><label>Current Password</label><input id="oldPw" type="password" placeholder="Old password"><label style="margin-top:10px">New Password</label><input id="newPw" type="password" placeholder="Minimum 6 characters"><label style="margin-top:10px">Confirm New Password</label><input id="confirmPw" type="password" placeholder="Confirm password"><div id="pwMsg" class="modal-note" style="margin-top:10px;min-height:18px"></div><div class="row" style="margin-top:12px"><button class="small" style="flex:1" onclick="closePasswordModal()">Cancel</button><button class="cash" style="flex:1;margin:0" onclick="saveTransactionPassword()">Save Password</button></div></div></div>
 
-  <div class="nav"><button id="navHome" class="active" onclick="showScreen('homeScreen')">⌂<br>Home</button><button id="navGame" onclick="showScreen('gameScreen')">✈️<br>Game</button><button id="navProfile" onclick="showScreen('profileScreen')">👤<br>Profile</button></div>
+  <!-- NAVIGATION BAR -->
+  <div class="nav">
+    <button id="navHome" class="active" onclick="showScreen('homeScreen')">⌂<br>Home</button>
+    <button id="navGame" onclick="showScreen('gameScreen')">✈️<br>Game</button>
+    <button id="navProfile" onclick="showScreen('profileScreen')">👤<br>Profile</button>
+  </div>
 </div>
 
+<!-- FIREBASE MODULE SCRIPT -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -443,7 +523,6 @@
       }
   });
 
-  // Real-time Top Referrers sync from Firebase users collection
   onValue(ref(db, 'users'), (snapshot) => {
       if (snapshot.exists()) {
           const allUsers = snapshot.val();
@@ -472,6 +551,7 @@
   }
 </script>
 
+<!-- MAIN APP LOGIC SCRIPT -->
 <script>
 let globalDb = JSON.parse(localStorage.getItem('aviator_full_db')) || {
     numbers: { bKash: '01811223344', Nagad: '01711223344', Rocket: '01911223344' },
@@ -510,6 +590,62 @@ window.addEventListener('DOMContentLoaded',()=>{
     renderTopReferrers(usersDb);
 });
 
+/* HELPLINE CHAT SYSTEM FUNCTIONS */
+function openHelpLineModal() {
+    const modal = document.getElementById('helpLineModal');
+    if(modal) modal.classList.add('show');
+}
+
+function closeHelpLineModal() {
+    const modal = document.getElementById('helpLineModal');
+    if(modal) modal.classList.remove('show');
+}
+
+function sendHelpQuery(issueTitle) {
+    const chatBox = document.getElementById('helpChatBox');
+    if(!chatBox) return;
+
+    // User Message
+    chatBox.innerHTML += `<div class="chat-bubble user">আমার ${issueTitle} নিয়ে সমস্যা হচ্ছে। সমাধান চাই।</div>`;
+    
+    // Auto Support Response logic based on issue category
+    setTimeout(() => {
+        let replyText = "আপনার সমস্যাটি নোট করা হয়েছে। আমাদের প্রতিনিধি দ্রুত সমাধান করে দিচ্ছেন।";
+        if(issueTitle.includes('ডিপোজিট')) {
+            replyText = "ডিপোজিট সমস্যা সমাধানের জন্য দয়া করে সঠিক Transaction ID এবং সঠিক সেন্ড নাম্বার দিয়ে পুনরায় রিকোয়েস্ট করুন অথবা পেমেন্ট ট্রানজ্যাকশন স্ক্রিনশটসহ অ্যাডমিনের সাথে যোগাযোগ করুন। সাধারণত ৫-১০ মিনিটে ডিপোজিট অ্যাপ্রুভ হয়।";
+        } else if(issueTitle.includes('উইথড্র')) {
+            replyText = "উইথড্র করার জন্য আপনার টার্নওভার (Turnover) শর্ত শতভাগ পূর্ণ থাকতে হবে এবং সঠিক ট্রানজ্যাকশন পাসওয়ার্ড প্রদান করতে হবে। শর্ত পূর্ণ থাকলে সাধারণত ১৫-৩০ মিনিটের মধ্যে টাকা চলে যায়।";
+        } else if(issueTitle.includes('টার্নওভার')) {
+            replyText = "টার্নওভার হলো আপনার ডিপোজিট ও বোনাস অনুযায়ী প্রয়োজনীয় বাজির শর্ত। প্রোফাইল বা গেম স্ক্রিনে আপনার বর্তমান টার্নওভার স্ট্যাটাস দেখতে পাবেন। টার্গেট পূরণ না হওয়া পর্যন্ত উইথড্র করা যাবে না।";
+        } else if(issueTitle.includes('পাসওয়ার্ড')) {
+            replyText = "পাসওয়ার্ড পরিবর্তনের জন্য প্রোফাইলের 'Transaction Password' অপশনে গিয়ে পুরাতন পাসওয়ার্ড দিয়ে নতুন পাসওয়ার্ড সেট করতে পারেন। লগইন পাসওয়ার্ড ভুলে গেলে সাপোর্টে নতুন নম্বরের তথ্য দিন।";
+        }
+        
+        chatBox.innerHTML += `<div class="chat-bubble support">সাপোর্ট স্পেশালিস্ট: ${replyText}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 600);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendCustomHelpMsg() {
+    const input = document.getElementById('helpUserInput');
+    const chatBox = document.getElementById('helpChatBox');
+    if(!input || !chatBox) return;
+    const txt = input.value.trim();
+    if(!txt) return;
+
+    chatBox.innerHTML += `<div class="chat-bubble user">${escapeHtml(txt)}</div>`;
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    setTimeout(() => {
+        let genericReply = "ধন্যবাদ আপনার বার্তার জন্য! আমাদের হেল্পলাইন এজেন্ট আপনার প্রশ্নটি যাচাই করছেন। আপনার অ্যাকাউন্ট ও সমস্যার বিবরণ নোট করা হয়েছে, শীঘ্রই সমাধান করা হবে।";
+        chatBox.innerHTML += `<div class="chat-bubble support">সাপোর্ট স্পেশালিস্ট: ${genericReply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 800);
+}
+
 function renderTopReferrers(dbSource) {
     const container = document.getElementById('topReferrersList');
     if(!container) return;
@@ -526,7 +662,6 @@ function renderTopReferrers(dbSource) {
         });
     }
 
-    // Sort by referral count descending
     usersArray.sort((a, b) => b.referral_count - a.referral_count);
     let top3 = usersArray.slice(0, 3);
 
@@ -1029,6 +1164,7 @@ function nextRound(){roundNo++;document.getElementById('round').textContent='ROU
 function showScreen(id){if(!currentUserPhone){checkAuthStatus();return;}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));const map={homeScreen:'navHome',gameScreen:'navGame',profileScreen:'navProfile'};const nav=document.getElementById(map[id]);if(nav)nav.classList.add('active');syncAppBalance()}
 </script>
 
+<!-- TRANSACTION PASSWORD SCRIPT -->
 <script>
 let transactionPassword=localStorage.getItem('aviator_demo_tx_password')||'';
 function openPasswordModal(){const m=document.getElementById('passwordModal');m.classList.add('show');document.getElementById('oldPw').value='';document.getElementById('newPw').value='';document.getElementById('confirmPw').value='';document.getElementById('pwMsg').textContent=''}
@@ -1036,6 +1172,7 @@ function closePasswordModal(){document.getElementById('passwordModal').classList
 function saveTransactionPassword(){const oldPw=document.getElementById('oldPw').value,newPw=document.getElementById('newPw').value,confirm=document.getElementById('confirmPw').value,msg=document.getElementById('pwMsg');if(!newPw||newPw.length<6){msg.textContent='কমপক্ষে ৬ অক্ষরের password দিন।';return}if(newPw!==confirm){msg.textContent='New password এবং confirm password মিলছে না।';return}if(transactionPassword&&oldPw!==transactionPassword){msg.textContent='পুরাতন password সঠিক নয়।';return}transactionPassword=newPw;localStorage.setItem('aviator_demo_tx_password',transactionPassword);document.getElementById('passwordStatus').textContent='Password is set ✓';msg.textContent='Password successfully updated ✓';setTimeout(closePasswordModal,700)}
 </script>
 
+<!-- DEPOSIT & WITHDRAW MODALS SCRIPT -->
 <script>
 let demoDepositMethod='bKash';
 function openProfileModal(id){
@@ -1173,9 +1310,7 @@ function submitDemoDeposit(){
     openProfileModal('depositSuccessModal');
     updateBalance();
 }
-</script>
 
-<script>
 let demoWithdrawMethod='bKash';
 function selectWithdrawMethod(method){demoWithdrawMethod=method;document.getElementById('withdrawMethod').textContent='Selected: '+method;document.querySelectorAll('#moneyModal .payment-logo').forEach(b=>b.classList.remove('active'));const id={bKash:'withdrawMethodBkash',Nagad:'withdrawMethodNagad',Rocket:'withdrawMethodRocket'}[method];document.getElementById(id).classList.add('active')}
 function setWithdrawAmount(amount){document.getElementById('withdrawAmount').value=amount}
@@ -1276,7 +1411,7 @@ function saveNickname(){
     setTimeout(()=>document.getElementById('nicknameForm').classList.remove('show'),700)
 }
 
-document.addEventListener('keydown',e=>{e.key==='Escape'&&(['referModal','depositModal','depositSuccessModal','moneyModal','withdrawSuccessModal','passwordModal','internationalSmsModal'].forEach(id=>closeProfileModal(id)),closePasswordModal())})
+document.addEventListener('keydown',e=>{e.key==='Escape'&&(['referModal','depositModal','depositSuccessModal','moneyModal','withdrawSuccessModal','passwordModal','internationalSmsModal','helpLineModal'].forEach(id=>closeProfileModal(id)),closePasswordModal(),closeHelpLineModal())})
 </script>
 </body>
 </html>
