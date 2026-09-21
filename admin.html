@@ -256,7 +256,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       msg.textContent = 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!';
   }
 
-  // ইউজারের ইনবক্সে এসএমএস যুক্ত করার হেল্পার ফাংশন
   async function sendUserInboxSms(phone, title, text) {
       const userRef = ref(db, 'users/' + phone);
       const userSnap = await get(userRef);
@@ -288,18 +287,13 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
               currentBal = userSnap.val().balance || 0;
           }
           await update(userRef, { balance: currentBal + Number(amount) });
-          await update(reqRef, { status: 'Approved' });
+          await update(reqRef, { status: 'Success' }); // ইউজার অ্যাপের সাথে ম্যাচ করার জন্য Success করা হলো
           
-          // ডিপোজিট সফল হলে অটোমেটিক এসএমএস
           await sendUserInboxSms(phone, "💰 ডিপোজিট সফল", `আপনার অ্যাকাউন্টে সফলভাবে ${amount} টাকা জমা হয়েছে।`);
-          
-          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে এবং ব্যালেন্স যোগ হয়েছে!');
+          alert('ডিপোজিট সফলভাবে Accept করা হয়েছে!');
       } else {
           await update(reqRef, { status: 'Rejected' });
-          
-          // ডিপোজিট ব্যর্থ/ভুল হলে অটোমেটিক এসএমএস
-          await sendUserInboxSms(phone, "❌ ডিপোজিট ব্যর্থ", `আপনার ডিপোজিট রিকোয়েস্টটি গ্রহণ করা সম্ভব হয়নি। অনুগ্রহ করে সঠিক ট্রানজেকশন আইডি (TrxID) দিয়ে আবার চেষ্টা করুন।`);
-          
+          await sendUserInboxSms(phone, "❌ ডিপোজিট ব্যর্থ", `আপনার ডিপোজিট রিকোয়েস্টটি গ্রহণ করা সম্ভব হয়নি। সঠিক ট্রানজেকশন আইডি দিয়ে আবার চেষ্টা করুন।`);
           alert('ডিপোজিট রিকুয়েস্ট Reject করা হয়েছে!');
       }
       fetchRequests();
@@ -313,11 +307,10 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       if(wReq.status !== 'Pending') return;
 
       if(action === 'Accept'){
-          await update(wRef, { status: 'Approved' });
+          // এখানে 'Approved'-এর বদলে 'Success' করা হয়েছে যেন ইউজার অ্যাপের হিস্টরিতে সফল দেখায়
+          await update(wRef, { status: 'Success' });
           
-          // উইথড্র সফল হলে অটোমেটিক এসএমএস
-          await sendUserInboxSms(phone, "✅ পেমেন্ট সফল (Withdrawal Successful)", `অভিনন্দন! আপনার ${amount} টাকা সফলভাবে এক্সেপ্ট করা হয়েছে এবং পেমেন্ট সম্পন্ন হয়েছে। ধন্যবাদ আমাদের সাথে থাকার জন্য।`);
-          
+          await sendUserInboxSms(phone, "✅ পেমেন্ট সফল (Withdrawal Successful)", `অভিনন্দন! আপনার ${amount} টাকা সফলভাবে এক্সেপ্ট করা হয়েছে এবং পেমেন্ট সম্পন্ন হয়েছে। ধন্যবাদ हमारे সাথে থাকার জন্য।`);
           alert('উইথড্র রিকুয়েস্ট সফলভাবে Accept করা হয়েছে!');
       } else {
           const userRef = ref(db, 'users/' + phone);
@@ -327,11 +320,12 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
               currentBal = userSnap.val().balance || 0;
           }
           await update(userRef, { balance: currentBal + Number(amount) });
-          await update(wRef, { status: 'Rejected & Refunded' });
           
-          // উইথড্র রিজেক্ট হলে নির্দিষ্ট টার্নওভার মেসেজ
-          const rejectMsg = `হ্যালো, সিস্টেম স্বয়ংক্রিয়ভাবে এটি জালিয়াতি সনাক্ত করেছে। আপনার বাজিতে একটি অস্বাভাবিকতা রয়েছে, যার ফলে সিস্টেম আপনার উত্তোলন প্রক্রিয়া করতে অক্ষম। সিস্টেম স্বয়ংক্রিয়ভাবে আপনার পরিমাণ ব্যালেন্সের 10.গুণ.20.গুণ টার্নওভার বাড়িয়ে দিয়েছে। অনুগ্রহ করে অবশিষ্ট টার্নওভার পরিমাণ পূরণ করুন এবং উত্তোলনের জন্য আবেদন করুন। ধন্যবাদ।`;
-          await sendUserInboxSms(phone, "⚠️ উত্তোলন (Withdrawal) প্রত্যাখ্যান করা হয়েছে", rejectMsg);
+          // এখানে 'Rejected & Refunded'-এর বদলে 'Rejected' করা হয়েছে
+          await update(wRef, { status: 'Rejected' });
+          
+          const rejectMsg = `হ্যালো, সিস্টেম স্বয়ংক্রিয়ভাবে এটি জালিয়াতি সনাক্ত করেছে। আপনার বাজিতে একটি অস্বাভাবিকতা রয়েছে, যার ফলে সিস্টেম আপনার উত্তোলন প্রক্রিয়া করতে অক্ষম। সিস্টেম স্বয়ংক্রিয়ভাবে আপনার পরিমাণ ব্যালেন্সের টার্নওভার বাড়িয়ে দিয়েছে। অনুগ্রহ করে অবশিষ্ট টার্নওভার পরিমাণ পূরণ করুন।`;
+          await sendUserInboxSms(phone, "⚠️ উত্তোলন প্রত্যাখ্যান করা হয়েছে", rejectMsg);
           
           alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা একাউন্টে রিফান্ড করা হয়েছে!');
       }
