@@ -47,6 +47,15 @@
 .reward-btn.available{background:linear-gradient(135deg,#ffb300,#f57c00);color:#fff;box-shadow:0 0 10px rgba(255,179,0,0.4)}
 .reward-btn.received{background:#1f7a49;color:#7ed6a7;cursor:default}
 
+/* Leaderboard Styles */
+.leaderboard-card { background: #191f29; border: 1px solid #2a303b; border-radius: 12px; padding: 12px; margin-top: 10px; }
+.leaderboard-user-card { display: flex; justify-content: space-between; align-items: center; background: #11161e; padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #ffc107; }
+.leaderboard-user-card:nth-child(2) { border-left-color: #6c757d; }
+.leaderboard-user-card:nth-child(3) { border-left-color: #cd7f32; }
+.leaderboard-user-info h4 { margin: 0; color: #fff; font-size: 14px; }
+.leaderboard-user-info p { margin: 2px 0 0; color: #aeb7c6; font-size: 11px; }
+.leaderboard-badge { background: #28a745; color: white; padding: 4px 8px; border-radius: 15px; font-weight: bold; font-size: 12px; }
+
 @media(max-width:420px){.profile-action-btn{font-size:14px;padding:13px 7px}.sky{height:360px}.mult{font-size:46px}.row{gap:6px}}
 </style>
 </head>
@@ -298,6 +307,14 @@
         </div>
       </div>
 
+      <!-- Top 3 Referrers Leaderboard Section (Placed at the very bottom inside Refer Modal) -->
+      <div class="leaderboard-card" style="margin-top: 16px;">
+        <div style="font-size:15px;font-weight:900;margin-bottom:8px">🏆 টপ রেফারার লিডারবোর্ড</div>
+        <div id="topReferrersList">
+          <div class="item"><span>লোড হচ্ছে...</span></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -415,7 +432,7 @@
               if(!lastMsg || lastMsg.text !== annText){
                   user.inboxSms.unshift({
                       id: Date.now(),
-                      title: "👑 VIP অফিশিয়াল নোটিশ",
+                      title: "👑 ভিআইপি অফিশিয়াল নোটিশ",
                       text: annText,
                       time: "এখন"
                   });
@@ -423,6 +440,16 @@
                   if(typeof window.renderInboxSms === 'function') window.renderInboxSms();
               }
           }
+      }
+  });
+
+  // Real-time Top Referrers sync from Firebase users collection
+  onValue(ref(db, 'users'), (snapshot) => {
+      if (snapshot.exists()) {
+          const allUsers = snapshot.val();
+          renderTopReferrers(allUsers);
+      } else {
+          renderTopReferrers(window.usersDb);
       }
   });
 
@@ -480,7 +507,52 @@ window.addEventListener('DOMContentLoaded',()=>{
     startCountdown();
     updateDepositPreview();
     renderWithdrawHistory();
+    renderTopReferrers(usersDb);
 });
+
+function renderTopReferrers(dbSource) {
+    const container = document.getElementById('topReferrersList');
+    if(!container) return;
+
+    let usersArray = [];
+    for(let phone in dbSource) {
+        let u = dbSource[phone];
+        let refCount = u.referStats && u.referStats.count ? u.referStats.count : 0;
+        let bonusAmt = u.referStats && u.referStats.bonusEarned ? u.referStats.bonusEarned : 0;
+        usersArray.push({
+            name: u.name || 'User ' + phone.slice(-4),
+            referral_count: refCount,
+            bonus_amount: bonusAmt
+        });
+    }
+
+    // Sort by referral count descending
+    usersArray.sort((a, b) => b.referral_count - a.referral_count);
+    let top3 = usersArray.slice(0, 3);
+
+    if(top3.length === 0 || top3.every(u => u.referral_count === 0)){
+        container.innerHTML = '<div class="item"><span>এখনও কোনো রেফার ডেটা নেই</span><strong>-</strong></div>';
+        return;
+    }
+
+    let rank = 1;
+    container.innerHTML = top3.map(user => {
+        let medal = (rank === 1) ? "🥇" : ((rank === 2) ? "🥈" : "🥉");
+        let cardHtml = `
+            <div class="leaderboard-user-card">
+                <div class="leaderboard-user-info">
+                    <h4>${medal} ${escapeHtml(user.name)}</h4>
+                    <p>রেফার সংখ্যা: <b>${user.referral_count}</b> টি</p>
+                </div>
+                <div class="leaderboard-badge">
+                    ৳${fmt(user.bonus_amount)}
+                </div>
+            </div>
+        `;
+        rank++;
+        return cardHtml;
+    }).join('');
+}
 
 function showLoading(text = "দয়া করে অপেক্ষা করুন...", callback){
     const overlay = document.getElementById('loadingOverlay');
@@ -553,7 +625,7 @@ function handleRegister(){
             totalDeposit: 0,
             referBonusGiven: false,
             referStats: { count: 0, bonusEarned: 0 },
-            claimedRewards: {}, // To track claimed milestone rewards
+            claimedRewards: {},
             inboxSms: [
                 { id: 1, title: "🎁 স্বাগতম বোনাস ও ঘোষণা", text: "আমাদের BD77Q প্ল্যাটফর্মে স্বাগতম! নিয়মিত অ্যাপটি উপভোগ করুন এবং বন্ধুদের রেফার করুন।", time: "আজ" }
             ],
@@ -567,6 +639,7 @@ function handleRegister(){
         }
 
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        renderTopReferrers(usersDb);
         
         currentUserPhone = phone;
         window.currentUserPhone = phone;
@@ -716,6 +789,7 @@ function updateBalance(){
         usersDb[currentUserPhone].balance = balance;
         usersDb[currentUserPhone].lastActive = Date.now();
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        renderTopReferrers(usersDb);
         if(window.fbDb && window.fbRef && window.fbUpdate){
             window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { 
                 balance: balance,
@@ -782,7 +856,6 @@ function syncAppBalance(){
     }
 }
 
-// Refer Modal Tabs Switch
 function switchReferTab(tab){
     const linkSec = document.getElementById('referLinkSection');
     const rewardsSec = document.getElementById('referRewardsSection');
@@ -803,7 +876,6 @@ function switchReferTab(tab){
     }
 }
 
-// Render Milestone Rewards
 function renderRewardsList(){
     const container = document.getElementById('rewardsListContainer');
     if(!container) return;
@@ -813,7 +885,6 @@ function renderRewardsList(){
     let totalRef = user.referStats ? user.referStats.count : 0;
     if(!user.claimedRewards) user.claimedRewards = {};
 
-    // Milestone config matching screenshot style
     const milestones = [
         { id: 3, target: 3, reward: 30, icon: '🥉' },
         { id: 7, target: 7, reward: 40, icon: '🥉' },
@@ -1198,6 +1269,7 @@ function saveNickname(){
     if(currentUserPhone && usersDb[currentUserPhone]){
         usersDb[currentUserPhone].name = n;
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+        renderTopReferrers(usersDb);
     }
     document.getElementById('profileNickname').textContent=n;
     m.textContent='Nickname saved ✓';
