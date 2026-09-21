@@ -31,7 +31,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 <!-- Firebase SDKs & Config (Modular CDN) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, get, set, update, child, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getDatabase, ref, get, set, update, child, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDAJGU2sNTdx0sL7pqAaZX7sKRM0LrgYwU",
@@ -227,7 +227,30 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
   }
 
   // হেল্প কেয়ার / সাপোর্ট টিকেট লোড করার ফাংশন
+  const HELP_CARE_24H = 24 * 60 * 60 * 1000;
+
+  async function cleanupExpiredSupportTickets() {
+      try {
+          const snap = await get(child(ref(db), 'supportTickets'));
+          if (!snap.exists()) return;
+          const data = snap.val() || {};
+          const now = Date.now();
+          const jobs = [];
+          Object.keys(data).forEach(key => {
+              const t = data[key] || {};
+              const created = Number(t.createdAt) || 0;
+              if (created && now - created >= HELP_CARE_24H) {
+                  jobs.push(remove(ref(db, 'supportTickets/' + key)));
+              }
+          });
+          if (jobs.length) await Promise.all(jobs);
+      } catch (e) {
+          console.error('Help Care 24h cleanup failed:', e);
+      }
+  }
+
   async function fetchSupportTickets() {
+      await cleanupExpiredSupportTickets();
       const supportSnap = await get(child(ref(db), 'supportTickets'));
       const supportTable = document.getElementById('adminSupportTableBody');
 
@@ -238,6 +261,12 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           Object.keys(tickets).reverse().forEach(key => {
               let t = tickets[key];
               const status = t.status || 'Pending';
+              const aiReply = t.aiReply || '';
+              const createdAt = Number(t.createdAt) || 0;
+              const expiresAt = Number(t.expiresAt) || (createdAt + HELP_CARE_24H);
+              const remaining = Math.max(0, expiresAt - Date.now());
+              const remainingHours = Math.floor(remaining / 3600000);
+              const sourceLabel = aiReply ? '🤖 AI Replied' : '👤 Admin Needed';
               const category = t.category || 'অন্যান্য সমস্যা';
               const image = t.image || t.adminImage || '';
 
@@ -245,8 +274,8 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
                 <tr>
                   <td>${t.userPhone || 'N/A'}</td>
                   <td>
-                    <strong>${category}</strong><br>
-                    <span>${t.message || ''}</span>
+                    <strong>${category}</strong> <span style="font-size:10px;color:#7ed6a7">${sourceLabel}</span><br>
+                    <span>${t.message || ''}</span><br><small style="color:#9da7b6">⏳ Auto delete: ${remainingHours}h-এর মধ্যে</small>
                     ${image ? `<br><img src="${image}" alt="Support Image" style="max-width:140px;max-height:100px;border-radius:8px;margin-top:7px;object-fit:cover;">` : ''}
                   </td>
                   <td>
@@ -259,6 +288,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
                     </select>
                   </td>
                   <td>
+                    ${aiReply ? `<div style="background:#17251d;padding:6px;border-radius:6px;margin-bottom:5px;color:#9de6b5;"><b>🤖 AI:</b> ${aiReply}</div>` : ''}
                     ${t.adminReply || 'রিপ্লাই দেওয়া হয়নি'}
                     ${t.adminImage ? `<br><img src="${t.adminImage}" alt="Admin Image" style="max-width:140px;max-height:100px;border-radius:8px;margin-top:7px;object-fit:cover;">` : ''}
                   </td>
@@ -594,3 +624,5 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 </div>
 </body>
 </html>
+
+<script>setInterval(()=>{location.reload();},300000);</script>
