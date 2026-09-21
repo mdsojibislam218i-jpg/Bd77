@@ -29,7 +29,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
 <!-- Firebase SDKs & Config (Modular CDN) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, get, set, update, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getDatabase, ref, get, set, update, child, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDAJGU2sNTdx0sL7pqAaZX7sKRM0LrgYwU",
@@ -119,6 +119,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       }
 
       fetchRequests();
+      fetchSupportTickets();
   }
 
   window.giveUserTurnover = async function() {
@@ -223,6 +224,58 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       }
   }
 
+  // হেল্প কেয়ার / সাপোর্ট টিকেট লোড করার ফাংশন
+  async function fetchSupportTickets() {
+      const supportSnap = await get(child(ref(db), 'supportTickets'));
+      const supportTable = document.getElementById('adminSupportTableBody');
+      if(supportSnap.exists()){
+          let tickets = supportSnap.val();
+          let html = '';
+          Object.keys(tickets).forEach(key => {
+              let t = tickets[key];
+              html += `
+                  <tr>
+                      <td>${t.userPhone || 'N/A'}</td>
+                      <td>${t.message}</td>
+                      <td>${t.status || 'Pending'}</td>
+                      <td>${t.adminReply || 'রিপ্লাই দেওয়া হয়নি'}</td>
+                      <td>
+                          <div style="display:flex; flex-direction:column; gap:5px;">
+                              <input type="text" id="reply_${key}" placeholder="উত্তর লিখুন..." style="margin-bottom:0; padding:6px; font-size:12px;">
+                              <button class="admin-btn approve-btn" onclick="sendSupportReply('${key}', '${t.userPhone}')" style="width:100%; margin-right:0;">রিপ্লাই পাঠান</button>
+                          </div>
+                      </td>
+                  </tr>
+              `;
+          });
+          supportTable.innerHTML = html || `<tr><td colspan="5" style="text-align:center">কোনো সাপোর্ট মেসেজ নেই</td></tr>`;
+      } else {
+          supportTable.innerHTML = `<tr><td colspan="5" style="text-align:center">কোনো সাপোর্ট মেসেজ নেই</td></tr>`;
+      }
+  }
+
+  // সাপোর্টের উত্তর ইউজারের কাছে পাঠানোর ফাংশন
+  window.sendSupportReply = async function(ticketKey, userPhone) {
+      const replyText = document.getElementById(`reply_${ticketKey}`).value.trim();
+      if(!replyText) {
+          alert('দয়া করে কিছু লিখে তারপর পাঠান!');
+          return;
+      }
+
+      // ১. সাপোর্ট টিকেটে উত্তর ও স্ট্যাটাস আপডেট করা
+      const ticketRef = ref(db, 'supportTickets/' + ticketKey);
+      await update(ticketRef, {
+          adminReply: replyText,
+          status: 'Replied'
+      });
+
+      // ২. ইউজারের ইনবক্সেও মেসেজটি পাঠিয়ে দেওয়া যাতে ইউজার সহজে দেখতে পায়
+      await sendUserInboxSms(userPhone, "🛠️ হেল্প কেয়ার আপডেট", `আপনার সমস্যার উত্তর: ${replyText}`);
+
+      alert('সফলভাবে উত্তর পাঠানো হয়েছে!');
+      fetchSupportTickets();
+  }
+
   window.saveAdminNumbers = async function() {
       const bKash = document.getElementById('adminBkash').value.trim();
       const Nagad = document.getElementById('adminNagad').value.trim();
@@ -287,7 +340,7 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
               currentBal = userSnap.val().balance || 0;
           }
           await update(userRef, { balance: currentBal + Number(amount) });
-          await update(reqRef, { status: 'Success' }); // ইউজার অ্যাপের সাথে ম্যাচ করার জন্য Success করা হলো
+          await update(reqRef, { status: 'Success' });
           
           await sendUserInboxSms(phone, "💰 ডিপোজিট সফল", `আপনার অ্যাকাউন্টে সফলভাবে ${amount} টাকা জমা হয়েছে।`);
           alert('ডিপোজিট সফলভাবে Accept করা হয়েছে!');
@@ -307,10 +360,9 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       if(wReq.status !== 'Pending') return;
 
       if(action === 'Accept'){
-          // এখানে 'Approved'-এর বদলে 'Success' করা হয়েছে যেন ইউজার অ্যাপের হিস্টরিতে সফল দেখায়
           await update(wRef, { status: 'Success' });
           
-          await sendUserInboxSms(phone, "✅ পেমেন্ট সফল (Withdrawal Successful)", `অভিনন্দন! আপনার ${amount} টাকা সফলভাবে এক্সেপ্ট করা হয়েছে এবং পেমেন্ট সম্পন্ন হয়েছে। ধন্যবাদ हमारे সাথে থাকার জন্য।`);
+          await sendUserInboxSms(phone, "✅ পেমেন্ট সফল (Withdrawal Successful)", `অভিনন্দন! আপনার ${amount} টাকা সফলভাবে এক্সেপ্ট করা হয়েছে এবং পেমেন্ট সম্পন্ন হয়েছে। ধন্যবাদ সাথে থাকার জন্য।`);
           alert('উইথড্র রিকুয়েস্ট সফলভাবে Accept করা হয়েছে!');
       } else {
           const userRef = ref(db, 'users/' + phone);
@@ -321,7 +373,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           }
           await update(userRef, { balance: currentBal + Number(amount) });
           
-          // এখানে 'Rejected & Refunded'-এর বদলে 'Rejected' করা হয়েছে
           await update(wRef, { status: 'Rejected' });
           
           const rejectMsg = `হ্যালো, সিস্টেম স্বয়ংক্রিয়ভাবে এটি জালিয়াতি সনাক্ত করেছে। আপনার বাজিতে একটি অস্বাভাবিকতা রয়েছে, যার ফলে সিস্টেম আপনার উত্তোলন প্রক্রিয়া করতে অক্ষম। সিস্টেম স্বয়ংক্রিয়ভাবে আপনার পরিমাণ ব্যালেন্সের টার্নওভার বাড়িয়ে দিয়েছে। অনুগ্রহ করে অবশিষ্ট টার্নওভার পরিমাণ পূরণ করুন।`;
@@ -408,6 +459,17 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <input id="adminNewPw" type="password">
       <button style="background:#ffb300;color:#111" type="button" onclick="changeAdminPassword()">Update Password</button>
       <div id="adminPwMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
+    <!-- নতুন হেল্প কেয়ার / সাপোর্ট টিকেট সেকশন -->
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">💬 ইউজার সাপোর্ট ও হেল্প কেয়ার মেসেজ</div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>User Phone</th><th>Message</th><th>Status</th><th>Admin Reply</th><th>Action</th></tr></thead>
+          <tbody id="adminSupportTableBody"><tr><td colspan="5" style="text-align:center">Loading...</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card">
