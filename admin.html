@@ -113,6 +113,12 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           document.getElementById('adminNoticeText').value = noticeSnap.val() || '';
       }
 
+      // ভিআইপি নোটিশ লোড করার কোড
+      const vipNoticeSnap = await get(child(ref(db), 'settings/vipAnnouncement'));
+      if(vipNoticeSnap.exists()){
+          document.getElementById('adminVipNoticeText').value = vipNoticeSnap.val() || '';
+      }
+
       fetchRequests();
   }
 
@@ -152,6 +158,14 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       await set(ref(db, 'settings/officialNotice'), noticeText);
       document.getElementById('adminNoticeMsg').style.color = '#7ed6a7';
       document.getElementById('adminNoticeMsg').textContent = 'অফিশিয়াল নিউজ সফলভাবে আপডেট হয়েছে!';
+  }
+
+  // ভিআইপি নোটিশ সেভ করার ফাংশন
+  window.saveVipAnnouncement = async function() {
+      const vipNoticeText = document.getElementById('adminVipNoticeText').value.trim();
+      await set(ref(db, 'settings/vipAnnouncement'), vipNoticeText);
+      document.getElementById('adminVipNoticeMsg').style.color = '#7ed6a7';
+      document.getElementById('adminVipNoticeMsg').textContent = 'ভিআইপি নোটিশ সফলভাবে আপডেট হয়েছে!';
   }
 
   async function fetchRequests() {
@@ -244,7 +258,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       msg.textContent = 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!';
   }
 
-  // ডিপোজিট Accept করলে ইউজারের ব্যালেন্সে টাকা যোগ হওয়ার লজিক
   window.handleDeposit = async function(reqKey, action, phone, amount) {
       const reqRef = ref(db, 'requests/' + reqKey);
       const snap = await get(reqRef);
@@ -259,7 +272,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           if(userSnap.exists()){
               currentBal = userSnap.val().balance || 0;
           }
-          // ইউজারের একাউন্টে ডিপোজিটের টাকা যোগ করা হলো
           await update(userRef, { balance: currentBal + Number(amount) });
           await update(reqRef, { status: 'Approved' });
           alert('ডিপোজিট সফলভাবে Accept করা হয়েছে এবং ব্যালেন্স যোগ হয়েছে!');
@@ -270,7 +282,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       fetchRequests();
   }
 
-  // উইথড্র Reject করলে ইউজারের টাকা একাউন্টে ব্যাক (রিফান্ড) আসার লজিক
   window.handleWithdraw = async function(wKey, action, phone, amount) {
       const wRef = ref(db, 'withdrawRequests/' + wKey);
       const snap = await get(wRef);
@@ -288,7 +299,6 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
           if(userSnap.exists()){
               currentBal = userSnap.val().balance || 0;
           }
-          // উইথড্র রিজেক্ট হলে কেটে নেওয়া টাকা ইউজারের ব্যালেন্সে ফিরিয়ে দেওয়া হলো
           await update(userRef, { balance: currentBal + Number(amount) });
           await update(wRef, { status: 'Rejected & Refunded' });
           alert('উইথড্র রিকুয়েস্ট Reject করা হয়েছে এবং টাকা একাউন্টে রিফান্ড করা হয়েছে!');
@@ -342,6 +352,15 @@ button{border:0;border-radius:9px;padding:12px;font-weight:800;font-size:15px;cu
       <textarea id="adminNoticeText" placeholder="এখানে অ্যাপের অফিশিয়াল নিউজ বা নোটিশ লিখুন..."></textarea>
       <button class="cash" type="button" onclick="saveOfficialNotice()">নোটিশ পাবলিশ করুন</button>
       <div id="adminNoticeMsg" class="modal-note" style="margin-top:5px"></div>
+    </div>
+
+    <!-- ভিআইপি নোটিশ বোর্ড সেকশন যুক্ত করা হলো -->
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:10px;color:#ffcf72">👑 ভিআইপি অফিশিয়াল নোটিশ বোর্ড</div>
+      <label>ভিআইপি নোটিশের টেক্সট লিখুন</label>
+      <textarea id="adminVipNoticeText" placeholder="এখানে ভিআইপি নোটিশ লিখুন..."></textarea>
+      <button class="cash" type="button" onclick="saveVipAnnouncement()">ভিআইপি নোটিশ পাবলিশ করুন</button>
+      <div id="adminVipNoticeMsg" class="modal-note" style="margin-top:5px"></div>
     </div>
 
     <div class="card">
