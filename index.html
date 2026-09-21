@@ -31,6 +31,22 @@
 @keyframes tickerScroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
 @keyframes pulseBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 
+/* Referral Modal Tabs */
+.refer-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:#11161e;padding:4px;border-radius:10px;margin-bottom:14px}
+.refer-tab{background:transparent;color:#9da7b6;padding:10px 6px;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;text-align:center}
+.refer-tab.active{background:#202733;color:#fff}
+
+/* Rewards Milestone List Item */
+.reward-item{background:#11161e;border:1px solid #2a303b;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.reward-left{display:flex;align-items:center;gap:12px}
+.reward-icon{font-size:28px}
+.reward-info-title{font-size:13px;font-weight:900;color:#fff}
+.reward-info-sub{font-size:12px;color:#ffcf72;margin-top:3px;font-weight:bold}
+.reward-btn{padding:7px 14px;border-radius:18px;font-size:12px;font-weight:900;cursor:pointer;border:0}
+.reward-btn.locked{background:#252c37;color:#7f8999;cursor:not-allowed}
+.reward-btn.available{background:linear-gradient(135deg,#ffb300,#f57c00);color:#fff;box-shadow:0 0 10px rgba(255,179,0,0.4)}
+.reward-btn.received{background:#1f7a49;color:#7ed6a7;cursor:default}
+
 @media(max-width:420px){.profile-action-btn{font-size:14px;padding:13px 7px}.sky{height:360px}.mult{font-size:46px}.row{gap:6px}}
 </style>
 </head>
@@ -103,12 +119,12 @@
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div>
           <div style="font-size:14px;color:#ffcf72;font-weight:900">🎁 REFERRAL PROGRAM</div>
-          <div style="font-size:18px;font-weight:900;margin:4px 0">রেফার করুন, পান ৳৩৯৯ বোনাস!</div>
-          <div style="font-size:12px;color:#aeb7c6">বন্ধুকে ইনভাইট করুন, সে ২০০০ টাকা ডিপোজিট ও ৫০০০ টাকা বাজি ধরলেই পাবেন ৳৩৯৯।</div>
+          <div style="font-size:18px;font-weight:900;margin:4px 0">রেফার করুন, পান রিওয়ার্ড ও বোনাস!</div>
+          <div style="font-size:12px;color:#aeb7c6">বন্ধুকে ইনভাইট করুন এবং মাইলফলক পূরণ করে রিওয়ার্ড ক্লেইম করুন।</div>
         </div>
         <div style="font-size:32px">🤝</div>
       </div>
-      <button class="cash" style="margin-top:12px;background:linear-gradient(135deg,#ffb300,#f57c00)" type="button" onclick="openProfileModal('referModal')">REFER & EARN</button>
+      <button class="cash" style="margin-top:12px;background:linear-gradient(135deg,#ffb300,#f57c00)" type="button" onclick="openProfileModal('referModal')">REFER & REWARDS</button>
     </div>
 
     <div class="card" style="background:linear-gradient(135deg,#1f2937,#111827);border:1px solid #7ed6a7">
@@ -116,7 +132,7 @@
         <div>
           <div style="font-size:14px;color:#7ed6a7;font-weight:900">🥚 WEEKLY & MONTHLY BONUS</div>
           <div style="font-size:16px;font-weight:900;margin:4px 0">নিয়মিত খেলুন এবং বোনাস জিতুন!</div>
-          <div style="font-size:12px;color:#aeb7c6">সপ্তাহে বোনাস নেওয়ার জন্য অ্যাপটি উপভোগ করুন এবং বন্ধুদেরকে রেফার করুন।</div>
+          <div style="font-size:12px;color:#aeb7c6">সাপ্তাহিক বোনাস নেওয়ার জন্য অ্যাপটি উপভোগ করুন এবং বন্ধুদেরকে রেফার করুন।</div>
         </div>
         <div style="font-size:32px">🎁</div>
       </div>
@@ -174,7 +190,7 @@
     <div class="header">
       <div class="logo"><span>👑</span> BD77Q</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <button type="button" onclick="openProfileModal('referModal')" style="background:linear-gradient(135deg,#ffb300,#f57c00);color:#fff;border:0;padding:6px 12px;border-radius:15px;font-weight:900;font-size:12px;cursor:pointer;">🎁 Refer</button>
+        <button type="button" onclick="openProfileModal('referModal')" style="background:linear-gradient(135deg,#ffb300,#f57c00);color:#fff;border:0;padding:6px 12px;border-radius:15px;font-weight:900;font-size:12px;cursor:pointer;">🎁 Rewards</button>
         <div class="balance">💰 ৳ <span id="balance">0</span></div>
       </div>
     </div>
@@ -230,37 +246,58 @@
     </div>
   </div>
 
+  <!-- REFERRAL & REWARDS MODAL -->
   <div id="referModal" class="profile-modal" onclick="modalBackdrop(event,'referModal')">
     <div class="card profile-modal-card">
       <div class="modal-top">
-        <div style="font-size:21px;font-weight:900">🎁 Referral Program</div>
+        <div style="font-size:21px;font-weight:900">🎁 Invite Friends & Rewards</div>
         <button class="modal-close" type="button" onclick="closeProfileModal('referModal')">×</button>
       </div>
-      <div class="modal-note">আপনার অ্যাপের নাম এবং ইউনিক রেফার আইডি সহ লিংক শেয়ার করুন। বন্ধু এই লিংকে ক্লিক করে অ্যাকাউন্ট খুলে মোট ৳২,০০০ ডিপোজিট ও ৳৫,০০০ বাজি ধরলেই পাবেন ৳৩৯৯ বোনাস!</div>
-      
-      <label style="margin-top:12px">অ্যাপের নাম ও রেফার আইডিযুক্ত লিংক</label>
-      <div class="row">
-        <input id="myReferCode" type="text" value="" readonly style="font-weight:900;text-align:center;letter-spacing:1px;font-size:13px">
-        <button class="small" type="button" onclick="copyReferCode()" style="padding:0 16px">Copy</button>
+
+      <!-- Refer Tabs -->
+      <div class="refer-tabs">
+        <button id="referTabLinkBtn" class="refer-tab active" type="button" onclick="switchReferTab('link')">🔗 Invite Link</button>
+        <button id="referTabRewardsBtn" class="refer-tab" type="button" onclick="switchReferTab('rewards')">🏆 Rewards</button>
       </div>
 
-      <div style="margin-top:12px">
-        <label>সরাসরি শেয়ার করুন</label>
-        <div class="social-share-grid">
-          <button class="social-share-btn whatsapp-share" type="button" onclick="shareToSocial('whatsapp')"><span style="font-size:18px">🟢</span> WhatsApp</button>
-          <button class="social-share-btn imo-share" type="button" onclick="shareToSocial('imo')"><span style="font-size:18px">🔵</span> Imo</button>
-          <button class="social-share-btn telegram-share" type="button" onclick="shareToSocial('telegram')"><span style="font-size:18px">✈️</span> Telegram</button>
-          <button class="social-share-btn facebook-share" type="button" onclick="shareToSocial('facebook')"><span style="font-size:18px">📘</span> Facebook</button>
+      <!-- Tab 1: Invite Link Content -->
+      <div id="referLinkSection">
+        <div class="modal-note">আপনার অ্যাপের নাম এবং ইউনিক রেফার আইডি সহ লিংক শেয়ার করুন। বন্ধু এই লিংকে ক্লিক করে অ্যাকাউন্ট খুললে আপনার রেফারে যুক্ত হবে!</div>
+        
+        <label style="margin-top:12px">অ্যাপের নাম ও রেফার আইডিযুক্ত লিংক</label>
+        <div class="row">
+          <input id="myReferCode" type="text" value="" readonly style="font-weight:900;text-align:center;letter-spacing:1px;font-size:13px">
+          <button class="small" type="button" onclick="copyReferCode()" style="padding:0 16px">Copy</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>সরাসরি শেয়ার করুন</label>
+          <div class="social-share-grid">
+            <button class="social-share-btn whatsapp-share" type="button" onclick="shareToSocial('whatsapp')"><span style="font-size:18px">🟢</span> WhatsApp</button>
+            <button class="social-share-btn imo-share" type="button" onclick="shareToSocial('imo')"><span style="font-size:18px">🔵</span> Imo</button>
+            <button class="social-share-btn telegram-share" type="button" onclick="shareToSocial('telegram')"><span style="font-size:18px">✈️</span> Telegram</button>
+            <button class="social-share-btn facebook-share" type="button" onclick="shareToSocial('facebook')"><span style="font-size:18px">📘</span> Facebook</button>
+          </div>
+        </div>
+
+        <div class="bonus-box" style="margin-top:15px">
+          <div class="bonus-title">📊 আপনার রেফার স্ট্যাটাস</div>
+          <div class="bonus-row"><span>মোট রেফার সফল:</span><strong id="totalReferredCount">0 জন</strong></div>
+          <div class="bonus-row"><span>বোনাস অর্জিত:</span><strong id="totalReferBonus">৳0</strong></div>
+          <div class="bonus-row"><span>মোট ডিপোজিট (All Deposits):</span><strong id="totalReferredDeposits">৳0</strong></div>
+          <div class="bonus-row"><span>শেষ ১২ ঘণ্টায় ডিপোজিটকারী:</span><strong id="last12HoursDepositorsCount">0 জন</strong></div>
         </div>
       </div>
 
-      <div class="bonus-box" style="margin-top:15px">
-        <div class="bonus-title">📊 আপনার রেফার স্ট্যাটাস</div>
-        <div class="bonus-row"><span>মোট রেফার সফল:</span><strong id="totalReferredCount">0 জন</strong></div>
-        <div class="bonus-row"><span>বোনাস অর্জিত:</span><strong id="totalReferBonus">৳0</strong></div>
-        <div class="bonus-row"><span>মোট ডিপোজিট (All Deposits):</span><strong id="totalReferredDeposits">৳0</strong></div>
-        <div class="bonus-row"><span>শেষ ১২ ঘণ্টায় ডিপোজিটকারী:</span><strong id="last12HoursDepositorsCount">0 জন</strong></div>
+      <!-- Tab 2: Rewards Milestone Content -->
+      <div id="referRewardsSection" style="display:none">
+        <div class="modal-note" style="margin-bottom:10px;">নির্দিষ্ট সংখ্যক সফল রেফার পূর্ণ হলে নিচে রিওয়ার্ড ক্লেইম করুন (no expiration):</div>
+        
+        <div id="rewardsListContainer">
+          <!-- Dynamically rendered via JS -->
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -399,6 +436,8 @@
               balance = liveBalance;
               if(usersDb[phone]) {
                   usersDb[phone].balance = liveBalance;
+                  usersDb[phone].referStats = userData.referStats || usersDb[phone].referStats;
+                  usersDb[phone].claimedRewards = userData.claimedRewards || usersDb[phone].claimedRewards;
               }
               updateBalance();
           }
@@ -514,6 +553,7 @@ function handleRegister(){
             totalDeposit: 0,
             referBonusGiven: false,
             referStats: { count: 0, bonusEarned: 0 },
+            claimedRewards: {}, // To track claimed milestone rewards
             inboxSms: [
                 { id: 1, title: "🎁 স্বাগতম বোনাস ও ঘোষণা", text: "আমাদের BD77Q প্ল্যাটফর্মে স্বাগতম! নিয়মিত অ্যাপটি উপভোগ করুন এবং বন্ধুদের রেফার করুন।", time: "আজ" }
             ],
@@ -654,6 +694,7 @@ function loadUserData(){
         balance = user.balance !== undefined ? user.balance : 0;
         if(user.turnoverTarget === undefined) user.turnoverTarget = 0;
         if(user.turnoverCurrent === undefined) user.turnoverCurrent = 0;
+        if(!user.claimedRewards) user.claimedRewards = {};
 
         if(!user.myReferCode){
             user.myReferCode = 'BD77Q-' + Math.floor(1000 + Math.random() * 9000);
@@ -676,7 +717,11 @@ function updateBalance(){
         usersDb[currentUserPhone].lastActive = Date.now();
         localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
         if(window.fbDb && window.fbRef && window.fbUpdate){
-            window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { balance: balance });
+            window.fbUpdate(window.fbRef(window.fbDb, 'users/' + currentUserPhone), { 
+                balance: balance,
+                referStats: usersDb[currentUserPhone].referStats,
+                claimedRewards: usersDb[currentUserPhone].claimedRewards
+            });
         }
     }
     const b=document.getElementById('balance');if(b)b.textContent=fmt(balance);syncAppBalance()
@@ -732,7 +777,101 @@ function syncAppBalance(){
         const pCurrent = document.getElementById('profileTurnoverCurrent');
         if(pTarget) pTarget.textContent = '৳' + fmt(user.turnoverTarget || 0);
         if(pCurrent) pCurrent.textContent = '৳' + fmt(user.turnoverCurrent || 0);
+
+        renderRewardsList();
     }
+}
+
+// Refer Modal Tabs Switch
+function switchReferTab(tab){
+    const linkSec = document.getElementById('referLinkSection');
+    const rewardsSec = document.getElementById('referRewardsSection');
+    const btnLink = document.getElementById('referTabLinkBtn');
+    const btnRewards = document.getElementById('referTabRewardsBtn');
+
+    if(tab === 'link'){
+        linkSec.style.display = 'block';
+        rewardsSec.style.display = 'none';
+        btnLink.classList.add('active');
+        btnRewards.classList.remove('active');
+    } else {
+        linkSec.style.display = 'none';
+        rewardsSec.style.display = 'block';
+        btnLink.classList.remove('active');
+        btnRewards.classList.add('active');
+        renderRewardsList();
+    }
+}
+
+// Render Milestone Rewards
+function renderRewardsList(){
+    const container = document.getElementById('rewardsListContainer');
+    if(!container) return;
+    if(!currentUserPhone || !usersDb[currentUserPhone]) return;
+    
+    let user = usersDb[currentUserPhone];
+    let totalRef = user.referStats ? user.referStats.count : 0;
+    if(!user.claimedRewards) user.claimedRewards = {};
+
+    // Milestone config matching screenshot style
+    const milestones = [
+        { id: 3, target: 3, reward: 30, icon: '🥉' },
+        { id: 7, target: 7, reward: 40, icon: '🥉' },
+        { id: 12, target: 12, reward: 50, icon: '🥈' },
+        { id: 20, target: 20, reward: 100, icon: '🥈' },
+        { id: 50, target: 50, reward: 300, icon: '🥇' },
+        { id: 100, target: 100, reward: 500, icon: '🏆' },
+        { id: 200, target: 200, reward: 1000, icon: '🏆' }
+    ];
+
+    container.innerHTML = milestones.map(m => {
+        let isClaimed = user.claimedRewards[m.id];
+        let canClaim = totalRef >= m.target && !isClaimed;
+
+        let btnClass = 'locked';
+        let btnText = `${totalRef}/${m.target}`;
+        let actionAttr = '';
+
+        if(isClaimed){
+            btnClass = 'received';
+            btnText = 'Received';
+        } else if(canClaim){
+            btnClass = 'available';
+            btnText = 'Available';
+            actionAttr = `onclick="claimReward(${m.id}, ${m.reward})"`;
+        }
+
+        return `
+            <div class="reward-item">
+              <div class="reward-left">
+                <div class="reward-icon">${m.icon}</div>
+                <div>
+                  <div class="reward-info-title">Over ${m.target} valid referral in total.</div>
+                  <div class="reward-info-sub">🪙 ৳${m.reward}.00</div>
+                </div>
+              </div>
+              <button class="reward-btn ${btnClass}" ${actionAttr}>${btnText}</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function claimReward(milestoneId, rewardAmount){
+    if(!currentUserPhone || !usersDb[currentUserPhone]) return;
+    let user = usersDb[currentUserPhone];
+    if(!user.claimedRewards) user.claimedRewards = {};
+
+    if(user.claimedRewards[milestoneId]) return;
+
+    user.claimedRewards[milestoneId] = true;
+    balance += rewardAmount;
+    if(!user.referStats) user.referStats = { count: 0, bonusEarned: 0 };
+    user.referStats.bonusEarned += rewardAmount;
+
+    localStorage.setItem('aviator_users_db', JSON.stringify(usersDb));
+    updateBalance();
+    renderRewardsList();
+    alert(`অভিনন্দন! আপনি সফলভাবে ৳${rewardAmount} রিওয়ার্ড ক্লেইম করেছেন!`);
 }
 
 function copyReferCode(){
@@ -838,7 +977,10 @@ function openProfileModal(id){
         updateDepositNumberDisplay();
         startDepositTimer();
     }
-    if(id==='referModal'){syncAppBalance()}
+    if(id==='referModal'){
+        switchReferTab('link');
+        syncAppBalance();
+    }
     if(id==='internationalSmsModal'){renderInboxSms();}
 }
 
